@@ -1,4 +1,10 @@
-#include <bits/stdc++.h>
+//#include <bits/stdc++.h>
+#include <iostream>
+#include <stdio.h>
+#include <vector>
+#include <time.h>
+#include <iomanip>
+
 using namespace std;
 
 #define MAX_POP 40
