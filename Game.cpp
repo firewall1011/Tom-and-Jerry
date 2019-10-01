@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
+#include <cmath>
 
 #include "Vector2.h"
 #include "Entity.h"
@@ -24,43 +25,6 @@ using namespace std;
 #define INITIAL_CAT_POPULATION 2
 #define MAX_FOOD 2
 
-//TODO:
-// void Mouse::CheckRadar(vector<Cat> cats, vector<Food> food){
-//     tracked = NULL;
-//     current_state = Wandering;
-//     double tracked_dist = smell_range;
-//     for(Cat e : cats){
-//         if(pos.distance(e.pos) <= tracked_dist && e.Representation() == CAT){
-//             current_state = RunningFrom;
-//             tracked_dist = pos.distance(e.pos);
-//             tracked = &(e.pos);
-//         }
-//     }
-//     for(Food f : food){
-//         if(pos.distance(f.pos) <= tracked_dist && f.Representation() == FOOD){
-//             current_state = RunningFrom;
-//             tracked_dist = pos.distance(f.pos);
-//             tracked = &(f.pos);
-//         }
-//     }
-// }
-
-// void Cat::CheckRadar(vector<Mouse> entities){
-//     tracked = NULL;
-//     current_state = Wandering;
-//     double tracked_dist = smell_range;
-//     for(Mouse e : entities){
-//         if(pos.distance(e.pos) <= tracked_dist){
-//             if(e.Representation() == MOUSE){
-//                 current_state = RunningTo;
-//                 tracked_dist = pos.distance(e.pos);
-//                 tracked = &(e.pos);
-//             }
-//         }
-//     }
-// }
-//ENDTODO
-
 void Entity::move(){
     Vector2 v;
     if(current_state == Wandering){
@@ -70,13 +34,15 @@ void Entity::move(){
     }
     else if(current_state == RunningFrom){
         //Call runningFrom technique
-        v = (pos - tracked).normalize();
+        v = (pos - tracked).normal();
         //Proprio menos alvo eh fugir
+        //std::cout << "RunningFrom Moving dir: " << v << endl;
     }
     else if(current_state == RunningTo){
         //Call runningFrom technique
-        v = (tracked - pos).normalize();
+        v = (tracked - pos).normal();
         //Proprio menos alvo eh fugir
+        //std::cout << "RunningTo Moving dir: " << v << endl;
     }
     if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < WIDTH && v.y + pos.y < HEIGHT){
         v += pos;
@@ -85,10 +51,11 @@ void Entity::move(){
         v -= pos;
     }
     if(v.x >= 0 && v.y >= 0 && v.x < WIDTH && v.y < HEIGHT) pos = v;
+    pos.x = round(pos.x); pos.y = round(pos.y);
 }
 
 void PrintMap(char** grid, int w, int h){
-    //system("clear");
+    system("clear");
     for(int i = -1; i <= w; i++){
         for(int j = -1; j <= h; j++){
             if(j == -1 || j == w) printf("|");
@@ -141,13 +108,13 @@ int main(){
         gridMap[(int)f.pos.x][(int)f.pos.y] = FOOD;
     }
 
-    int num_loops = 100;
+    int num_loops = 1000;
     //Game Loop
     while(num_loops > 0){
         PrintMap(gridMap, WIDTH, HEIGHT);
         for(Mouse& e : mouses){
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            //e.CheckRadar(cats, foods);
+            e.CheckRadar(cats, foods);
             e.move();
             //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
             gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
@@ -155,7 +122,7 @@ int main(){
         
         for(Cat& e : cats){
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            //e.CheckRadar(mouses);
+            e.CheckRadar(mouses);
             e.move();
             //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
             gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
