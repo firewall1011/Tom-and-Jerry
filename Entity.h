@@ -28,7 +28,17 @@ private:
     char representation;
 //Constructor
 public:
-    Entity(){ representation = ' '; current_state = Wandering; speed = 1;}
+    Entity(){ 
+        smell_range = 5;
+        speed = 1;
+        hunger = 0.0;
+        reproduction_urge = 0.0;
+        atractiveness = 0.0;
+        current_state = Wandering;
+        pos = Vector2();
+        tracked = Vector2();
+        representation = ' ';
+    }
 //Getters and Setters
     char getRepresentation() { return this->representation; }
     void setRepresentation(char r) {this->representation = r;}
@@ -42,9 +52,7 @@ public:
     Mouse(){
         setRepresentation('M');
     }
-    void CheckRadar(std::vector<Cat> cats, std::vector<Food> food){
-        printf("Using Mouse rad\n");
-    }
+    void CheckRadar(std::vector<Cat> cats, std::vector<Food> food);
 };
 
 class Cat : public Entity{
@@ -52,12 +60,46 @@ public:
     Cat(){
         setRepresentation('C');
     }
-    void CheckRadar(std::vector<Mouse> mouses){
-        printf("Using Cat rad\n");
-    }
+    void CheckRadar(std::vector<Mouse> mouses);
 };
 
 class Food : public Entity{
 };
+
+void Mouse::CheckRadar(std::vector<Cat> cats, std::vector<Food> food){
+    tracked = Vector2();
+    current_state = Wandering;
+    double tracked_dist = smell_range;
+    for(Cat& e : cats){
+        if(pos.distance(e.pos) <= tracked_dist){
+            current_state = RunningFrom;
+            tracked_dist = pos.distance(e.pos);
+            tracked = (e.pos);
+            std::cout << "Cat Tracked: " << tracked << tracked_dist << std::endl;
+        }
+    }
+    for(Food& f : food){
+        if(pos.distance(f.pos) <= tracked_dist){
+            current_state = RunningTo;
+            tracked_dist = pos.distance(f.pos);
+            tracked = (f.pos);
+            std::cout << "Food Tracked: " << tracked << tracked_dist << std::endl;
+        }
+    }
+}
+
+void Cat::CheckRadar(std::vector<Mouse> mouses){
+    tracked = Vector2();
+    current_state = Wandering;
+    double tracked_dist = smell_range;
+    for(Mouse& e : mouses){
+        if(pos.distance(e.pos) <= tracked_dist){
+            current_state = RunningTo;
+            tracked_dist = pos.distance(e.pos);
+            tracked = (e.pos);
+            std::cout << "Mouse Tracked: " << tracked << tracked_dist << std::endl;
+        }
+    }
+}
 
 #endif
