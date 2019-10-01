@@ -1,154 +1,91 @@
 #include <vector>
+#include <stdlib.h>
+#include <iostream>
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
 #include <math.h>
 
+#include "Vector2.h"
+#include "Entity.h"
+
+using namespace std;
+
+/*Matrix defines*/
 #define WIDTH 30
 #define HEIGHT 30
-#define EMPTY_SPACE 0
-#define CAT 'c'
-#define MOUSE 'm'
-#define FOOD 'f'
+#define EMPTY_SPACE ' '
+#define CAT 'C'
+#define MOUSE 'M'
+#define FOOD 'F'
 
-enum state{
-    Wandering, RunningFrom, RunningTo, Dead
-};
+/*Genetic Algorithm defines*/
+#define INITIAL_MOUSE_POPULATION 3
+#define INITIAL_CAT_POPULATION 2
+#define MAX_FOOD 2
 
-class Vector2{
-    public:
-        int x, y;
+//TODO:
+// void Mouse::CheckRadar(vector<Cat> cats, vector<Food> food){
+//     tracked = NULL;
+//     current_state = Wandering;
+//     double tracked_dist = smell_range;
+//     for(Cat e : cats){
+//         if(pos.distance(e.pos) <= tracked_dist && e.Representation() == CAT){
+//             current_state = RunningFrom;
+//             tracked_dist = pos.distance(e.pos);
+//             tracked = &(e.pos);
+//         }
+//     }
+//     for(Food f : food){
+//         if(pos.distance(f.pos) <= tracked_dist && f.Representation() == FOOD){
+//             current_state = RunningFrom;
+//             tracked_dist = pos.distance(f.pos);
+//             tracked = &(f.pos);
+//         }
+//     }
+// }
 
-    Vector2(){
-        x = y = 0;
+// void Cat::CheckRadar(vector<Mouse> entities){
+//     tracked = NULL;
+//     current_state = Wandering;
+//     double tracked_dist = smell_range;
+//     for(Mouse e : entities){
+//         if(pos.distance(e.pos) <= tracked_dist){
+//             if(e.Representation() == MOUSE){
+//                 current_state = RunningTo;
+//                 tracked_dist = pos.distance(e.pos);
+//                 tracked = &(e.pos);
+//             }
+//         }
+//     }
+// }
+//ENDTODO
+
+void Entity::move(){
+    Vector2 v;
+    if(current_state == Wandering){
+        //Call wandering technique
+        v = Vector2((rand()%3 - 1), (rand()%3 - 1)) * speed;
+        //cout << v << endl;
     }
-
-    Vector2(int nx, int ny){
-        x = nx;
-        y = ny;
+    else if(current_state == RunningFrom){
+        //Call runningFrom technique
+        v = (pos - tracked).normalize();
+        //Proprio menos alvo eh fugir
     }
-
-    Vector2* sum(Vector2 v){
-        Vector2* vn = new Vector2();
-        vn->x = x + v.x;
-        vn->y = y + v.y;
-        return vn;
+    else if(current_state == RunningTo){
+        //Call runningFrom technique
+        v = (tracked - pos).normalize();
+        //Proprio menos alvo eh fugir
     }
-
-    Vector2* sub(Vector2 v){
-        Vector2* vn = new Vector2();
-        vn->x = x - v.x;
-        vn->y = y - v.y;
-        return vn;
+    if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < WIDTH && v.y + pos.y < HEIGHT){
+        v += pos;
     }
-
-    double distance(Vector2 v){
-        double powx = pow(v.x - x, 2);
-        double powy = pow(v.y - y, 2);
-        double dist = sqrt( powx + powy);
-        return dist;
+    else{
+        v -= pos;
     }
-
-    double mag(){
-        return sqrt(x*x + y*y);
-    }
-
-
-};
-
-class Entity : public Vector2{
-    public: 
-        int smell_range;
-        float speed;
-        float hunger;
-        float reproduction_urge;
-        float atractiveness;
-        state current_state;
-        Vector2* pos;
-        Vector2* tracked;
-
-        Entity(){
-            smell_range = 1;
-            speed = 1;
-            hunger = 0.5;
-            reproduction_urge = 0;
-            atractiveness = 0;
-            pos = new Vector2();
-
-            current_state = Wandering;
-        }
-        void move(){
-            Vector2* v;
-            if(current_state == Wandering){
-                //Call wandering technique
-                printf("Wandering\n");
-                v = new Vector2((rand()%3 - 1) * speed, (rand()%3 - 1) * speed);
-            }
-            else if(current_state == RunningFrom){
-                //Call runningFrom technique
-                printf("Running From\n");
-                v = pos->sub(*tracked);
-                v->x = v->x / v->mag();
-                v->y = v->y / v->mag();
-                //Proprio menos alvo eh fugir
-            }
-            else if(current_state == RunningTo){
-                //Call runningFrom technique
-                printf("Running To\n");
-                v = tracked->sub(*pos);
-                v->x = v->x / v->mag();
-                v->y = v->y / v->mag();
-                //Proprio menos alvo eh fugir
-            }
-            v = pos->sum(*v);
-            if(v->x >= 0 && v->y >= 0 && v->x < WIDTH && v->y < HEIGHT){
-                    pos = v;
-            }
-        }
-        void CheckRadar();
-};
-
-class Mouse : public Entity{
-    public:
-        Mouse(){
-            smell_range = 20;
-        }
-
-        void CheckRadar(Entity* cat, Vector2* food){
-            if(pos->distance(*cat->pos) <= smell_range){
-                current_state = RunningFrom;
-                tracked = cat->pos;
-            }
-            else if(pos->distance(*food) <= smell_range){
-                current_state = RunningTo;
-                tracked = food;
-            }
-            else{
-                current_state = Wandering;
-                tracked = NULL;
-            }
-        }
-};
-
-class Cat : public Entity{
-    public:
-        Cat(){
-            smell_range = 15;
-            speed = 2;
-        }
-
-        void CheckRadar(Mouse* mouse){
-            if(pos->distance(*mouse->pos) <= smell_range){
-                current_state = RunningTo;
-                tracked = mouse->pos;
-            }
-            else{
-                current_state = Wandering;
-                tracked = NULL;
-            }
-        }
-};
-
+    if(v.x >= 0 && v.y >= 0 && v.x < WIDTH && v.y < HEIGHT) pos = v;
+}
 
 void PrintMap(char** grid, int w, int h){
     //system("clear");
@@ -166,44 +103,65 @@ int main(){
     char** gridMap = (char**)malloc(WIDTH * sizeof(char*));
     for(int i = 0; i < WIDTH; i++) gridMap[i] = (char*)malloc(HEIGHT * sizeof(char));
 
-    for(int i = 0; i < 20; i++)
-        for(int j = 0; j < 20; j++)
+    for(int i = 0; i < WIDTH; i++)
+        for(int j = 0; j < HEIGHT; j++)
             gridMap[i][j] = EMPTY_SPACE;
 
     srand(time(NULL));
 
-    printf("here");
-    Cat* cat = new Cat();
-    Mouse* mouse = new Mouse();
+    vector<Cat> cats;
+    vector<Mouse> mouses;
+    vector<Entity> entities;
 
-    cat->pos->x = WIDTH-1;
-    cat->pos->y = HEIGHT-1;
+    for(int i = 0; i < INITIAL_CAT_POPULATION; i++){
+        Cat cat = Cat();
+        cat.pos.x = WIDTH-1;
+        cat.pos.y = HEIGHT-1;
+        cats.push_back(cat);
+        entities.push_back(cat);
+        gridMap[(int)cat.pos.x][(int)cat.pos.y] = CAT;
+    }
 
-    Vector2* food = new Vector2(rand()%WIDTH, rand()%HEIGHT);
+    for(int i = 0; i < INITIAL_MOUSE_POPULATION; i++){
+        Mouse mouse = Mouse();
+        mouse.pos.x = (int)(WIDTH/2);
+        mouse.pos.y = (int)(HEIGHT/2);
+        mouses.push_back(mouse);
+        entities.push_back(mouse);
+        gridMap[(int)mouse.pos.x][(int)mouse.pos.y] = MOUSE;
+    }
 
-    gridMap[food->x][food->y] = FOOD;
-    char c;
+
+    vector<Food> foods;
+    for(int i = 0; i < MAX_FOOD; i++){
+        Food f = Food();
+        f.pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
+        foods.push_back(f);
+        entities.push_back(f);
+        gridMap[(int)f.pos.x][(int)f.pos.y] = FOOD;
+    }
+
+    int num_loops = 100;
     //Game Loop
-    //while((cat->pos->x != mouse->pos->x && cat->pos->y != mouse->pos->y) && (food.x != mouse->pos->x && food.y != mouse->pos->y)){
-    while(true){
-        gridMap[cat->pos->x][cat->pos->y] = EMPTY_SPACE;
-        gridMap[mouse->pos->x][mouse->pos->y] = EMPTY_SPACE;
-        cat->CheckRadar(mouse);
-        mouse->CheckRadar(cat, food);
-        cat->move();
-        mouse->move();
-        gridMap[mouse->pos->x][mouse->pos->y] = MOUSE;
-        gridMap[cat->pos->x][cat->pos->y] = CAT;
+    while(num_loops > 0){
         PrintMap(gridMap, WIDTH, HEIGHT);
-
-        if(cat->pos->x == mouse->pos->x && cat->pos->y == mouse->pos->y){
-            printf("CAT CAUGHT MOUSE!\n");
-            break;
-        } 
-        if(food->x == mouse->pos->x && food->y == mouse->pos->y){
-            printf("MOUSE CAUGHT FOOD!\n");
-            break;
-        } 
+        for(Mouse& e : mouses){
+            gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
+            //e.CheckRadar(cats, foods);
+            e.move();
+            //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
+            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+        }
+        
+        for(Cat& e : cats){
+            gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
+            //e.CheckRadar(mouses);
+            e.move();
+            //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
+            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+        }
+        num_loops--;
     }
     PrintMap(gridMap, WIDTH, HEIGHT);
+
 }
