@@ -43,7 +43,9 @@ public:
     char getRepresentation() { return this->representation; }
     void setRepresentation(char r) {this->representation = r;}
 //Methods
-    void move();
+    void Move();
+    void CalculateHunger();
+    bool isDead(){ return current_state == Dead; }
     virtual void CheckRadar(){}
 };
 
@@ -52,7 +54,7 @@ public:
     Mouse(){
         setRepresentation('M');
     }
-    void CheckRadar(std::vector<Cat> cats, std::vector<Food> food);
+    void CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food);
 };
 
 class Cat : public Entity{
@@ -60,43 +62,61 @@ public:
     Cat(){
         setRepresentation('C');
     }
-    void CheckRadar(std::vector<Mouse> mouses);
+    void CheckRadar(std::vector<Mouse>& mouses);
 };
 
 class Food : public Entity{
+public:
+    Food(){
+        setRepresentation('F');
+    }
+    void CheckRadar(){
+        return;
+    }
 };
 
-void Mouse::CheckRadar(std::vector<Cat> cats, std::vector<Food> food){
+void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
+    if(isDead()) return;
     tracked = Vector2();
     current_state = Wandering;
     double tracked_dist = smell_range;
     for(Cat& e : cats){
-        if(pos.distance(e.pos) <= tracked_dist){
+        if(e.current_state != Dead && pos.distance(e.pos) <= tracked_dist){
             current_state = RunningFrom;
             tracked_dist = pos.distance(e.pos);
             tracked = (e.pos);
-            std::cout << "Cat Tracked: " << tracked << tracked_dist << std::endl;
+            if(tracked_dist < 1) current_state = Dead;
+            //std::cout << "Cat Tracked: " << tracked << tracked_dist << std::endl;
         }
     }
     for(Food& f : food){
-        if(pos.distance(f.pos) <= tracked_dist){
+        if(f.current_state != Dead && pos.distance(f.pos) <= tracked_dist){
             current_state = RunningTo;
             tracked_dist = pos.distance(f.pos);
             tracked = (f.pos);
+            if(tracked_dist < 1){
+                hunger = 0;
+                f.current_state = Dead;
+            }
             std::cout << "Food Tracked: " << tracked << tracked_dist << std::endl;
         }
     }
 }
 
-void Cat::CheckRadar(std::vector<Mouse> mouses){
+void Cat::CheckRadar(std::vector<Mouse>& mouses){
+    if(isDead()) return;
     tracked = Vector2();
     current_state = Wandering;
     double tracked_dist = smell_range;
     for(Mouse& e : mouses){
-        if(pos.distance(e.pos) <= tracked_dist){
+        if(e.current_state != Dead && pos.distance(e.pos) <= tracked_dist){
             current_state = RunningTo;
             tracked_dist = pos.distance(e.pos);
             tracked = (e.pos);
+            if(tracked_dist < 1){
+                hunger = 0;
+                e.current_state = Dead;
+            }
             std::cout << "Mouse Tracked: " << tracked << tracked_dist << std::endl;
         }
     }

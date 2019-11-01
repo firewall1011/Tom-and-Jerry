@@ -25,7 +25,11 @@ using namespace std;
 #define INITIAL_CAT_POPULATION 2
 #define MAX_FOOD 2
 
-void Entity::move(){
+void Entity::Move(){
+    if(isDead()){
+        cout << "Dead Creature" << endl;
+        return;
+    }
     Vector2 v;
     if(current_state == Wandering){
         //Call wandering technique
@@ -52,6 +56,12 @@ void Entity::move(){
     }
     if(v.x >= 0 && v.y >= 0 && v.x < WIDTH && v.y < HEIGHT) pos = v;
     pos.x = round(pos.x); pos.y = round(pos.y);
+}
+
+void Entity::CalculateHunger(){
+    if(isDead()) return;
+    hunger+= 0.1;
+    if(hunger >= 10) current_state = Dead;
 }
 
 void PrintMap(char** grid, int w, int h){
@@ -98,7 +108,6 @@ int main(){
         gridMap[(int)mouse.pos.x][(int)mouse.pos.y] = MOUSE;
     }
 
-
     vector<Food> foods;
     for(int i = 0; i < MAX_FOOD; i++){
         Food f = Food();
@@ -114,19 +123,30 @@ int main(){
         PrintMap(gridMap, WIDTH, HEIGHT);
         for(Mouse& e : mouses){
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(cats, foods);
-            e.move();
-            //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
-            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+            if(!e.isDead()){
+                e.CheckRadar(cats, foods);
+                e.CalculateHunger();
+                e.Move();
+                gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+            }
         }
         
         for(Cat& e : cats){
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(mouses);
-            e.move();
-            //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
-            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+            if(!e.isDead()){
+                e.CheckRadar(mouses);
+                e.CalculateHunger();
+                e.Move();
+                gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+            }
         }
+
+        for(Food& f : foods){
+            if(f.isDead()){
+                cout << "Food eaten" << endl;
+            }
+        }
+
         num_loops--;
     }
     PrintMap(gridMap, WIDTH, HEIGHT);

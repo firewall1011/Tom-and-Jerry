@@ -37,7 +37,7 @@ class Vector2{
     Vector2 operator/=(double d){ return *this = Vector2(x/d, y/d); }
     Vector2 operator/(double d) { return Vector2(x/d, y/d); }
 
-    //TODO: friend ostream& operator<<(ostream& os, const Vector2& v){ os << "(" << v.x << ", "<< v.y << ")"; return os;}
+    friend std::ostream& operator<<(std::ostream& os, const Vector2 v){ os << "(" << v.x << ", "<< v.y << ")"; return os;}
 
     //Methods
     Vector2 normal(){ return Vector2(x/mag(), y/mag()); }
