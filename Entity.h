@@ -19,7 +19,7 @@ class Entity{
 public: 
     int smell_range;
     float speed;
-    float hunger;
+    float energy;
     float reproduction_urge;
     float atractiveness;
     state current_state;
@@ -33,7 +33,7 @@ public:
     Entity(){ 
         smell_range = 5;
         speed = 1;
-        hunger = 0.0;
+        energy = 1.0;
         reproduction_urge = 0.0;
         atractiveness = 0.0;
         current_state = Wandering;
@@ -42,12 +42,20 @@ public:
         tracked_pos = Vector2();
         representation = ' ';
     }
-     friend bool operator==(const Entity& vA, const Entity& vB){std::cout << vA.pos << vB.pos << std::endl; return vA.pos == vB.pos;}
+    friend bool operator==(const Entity& vA, const Entity& vB){std::cout << vA.pos << vB.pos << std::endl; return vA.pos == vB.pos;}
 //Getters and Setters
     char getRepresentation() { return this->representation; }
     void setRepresentation(char r) {this->representation = r;}
 //Methods
     void move();
+    bool energyConsume(){
+        energy -= (speed*speed)/100;
+        if(energy <= 0) return true;
+            else return false;
+    }
+    void energyRecover(int amount){
+        energy = (energy+amount < 1) ? energy+amount : 1;
+    }
     virtual void CheckRadar(){}
 };
 
@@ -71,28 +79,11 @@ class Food : public Entity{
 };
 
 void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
-    // current_state = Wandering;
-    // double tracked_dist = smell_range;
-    // // for(Cat& e : cats){
-    // //     if(pos.distance(e.pos) <= tracked_dist){
-    // //         current_state = RunningFrom;
-    // //         tracked_dist = pos.distance(e.pos);
-    // //         tracked = &e;
-    // //         std::cout << "Cat Tracked: " << tracked->pos << tracked_dist << std::endl;
-    // //     }
-    // // }
-    // // for(Food& f : food){
-    // //     if(pos.distance(f.pos) <= tracked_dist){
-    // //         current_state = RunningTo;
-    // //         tracked_dist = pos.distance(f.pos);
-    // //         tracked = &f;
-    // //         std::cout << "Food Tracked: " << tracked->pos << tracked_dist << std::endl;
-    // //     }
-    // // }
-    // if isnt wandering, check if has eaten mouse
-    if (current_state == RunningTo && pos == tracked_pos) {
-        if (food.size() > tracked_id && food[tracked_id].pos == tracked_pos)
+    if (current_state == RunningTo && pos.distance(tracked_pos) < 1) {
+        if (food.size() > tracked_id && food[tracked_id].pos == tracked_pos){
             food.erase(food.begin() + tracked_id);
+            energyRecover(1);
+        }
         tracked_id = -1;
         tracked_pos = Vector2();
     }
@@ -146,9 +137,11 @@ void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
 
 void Cat::CheckRadar(std::vector<Mouse>& mice){
     // if isnt wandering, check if has eaten mouse
-    if (current_state == RunningTo && pos == tracked_pos) {
-        if (mice.size() > tracked_id && mice[tracked_id].pos == tracked_pos)
+    if (current_state == RunningTo && pos.distance(tracked_pos) < 1) {
+        if (mice.size() > tracked_id && mice[tracked_id].pos == tracked_pos){
             mice.erase(mice.begin() + tracked_id);
+            energyRecover(1);
+        }
         tracked_id = -1;
         tracked_pos = Vector2();
     }

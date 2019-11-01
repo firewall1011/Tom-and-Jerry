@@ -114,21 +114,33 @@ int main(){
     //Game Loop
     while(num_loops > 0){
         PrintMap(gridMap, WIDTH, HEIGHT);
-        for(Mouse& e : mice){
+        for(int i = 0; i < mice.size(); i++){
+            Mouse& e = mice.at(i);
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
             e.CheckRadar(cats, foods);
             e.move();
-            //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
             gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+            if(e.energyConsume()){
+                gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
+                mice.erase(mice.begin() + i);
+                i--;
+            }
         }
         
-        for(Cat& e : cats){
+        for(int i = 0; i < cats.size(); i++){
+            Cat& e = cats.at(i);
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
             e.CheckRadar(mice);
             e.move();
             //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
             gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
+            if(e.energyConsume()){
+                gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
+                cats.erase(cats.begin() + i);
+                i--;
+            }
         }
+        getchar();
         num_loops--;
     }
     PrintMap(gridMap, WIDTH, HEIGHT);
