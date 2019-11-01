@@ -1,9 +1,5 @@
-//#include <bits/stdc++.h>
-#include <iostream>
-#include <stdio.h>
-#include <vector>
-#include <time.h>
-#include <iomanip>
+#include <bits/stdc++.h>
+
 
 using namespace std;
 

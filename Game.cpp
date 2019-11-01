@@ -13,8 +13,8 @@
 using namespace std;
 
 /*Matrix defines*/
-#define WIDTH 30
-#define HEIGHT 30
+#define WIDTH 32
+#define HEIGHT 32
 #define EMPTY_SPACE ' '
 #define CAT 'C'
 #define MOUSE 'M'
@@ -33,18 +33,19 @@ void Entity::move(){
         //cout << v << endl;
     }
     else if(current_state == RunningFrom){
+        // cout << tracked->pos << endl;
         //Call runningFrom technique
-        v = (pos - tracked).normal();
+        v = (pos - tracked_pos).normal();
         //Proprio menos alvo eh fugir
         //std::cout << "RunningFrom Moving dir: " << v << endl;
     }
     else if(current_state == RunningTo){
         //Call runningFrom technique
-        v = (tracked - pos).normal();
+        v = (tracked_pos - pos).normal();
         //Proprio menos alvo eh fugir
         //std::cout << "RunningTo Moving dir: " << v << endl;
     }
-    if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < WIDTH && v.y + pos.y < HEIGHT){
+    if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < (WIDTH - 1) && v.y + pos.y < (HEIGHT - 1)){
         v += pos;
     }
     else{
@@ -55,7 +56,7 @@ void Entity::move(){
 }
 
 void PrintMap(char** grid, int w, int h){
-    system("clear");
+    // sls("clear");
     for(int i = -1; i <= w; i++){
         for(int j = -1; j <= h; j++){
             if(j == -1 || j == w) printf("|");
@@ -64,6 +65,7 @@ void PrintMap(char** grid, int w, int h){
         }
         printf("\n");
     }
+    // getchar();
 }
 
 int main(){
@@ -77,7 +79,7 @@ int main(){
     srand(time(NULL));
 
     vector<Cat> cats;
-    vector<Mouse> mouses;
+    vector<Mouse> mice;
     vector<Entity> entities;
 
     for(int i = 0; i < INITIAL_CAT_POPULATION; i++){
@@ -93,7 +95,7 @@ int main(){
         Mouse mouse = Mouse();
         mouse.pos.x = (int)(WIDTH/2);
         mouse.pos.y = (int)(HEIGHT/2);
-        mouses.push_back(mouse);
+        mice.push_back(mouse);
         entities.push_back(mouse);
         gridMap[(int)mouse.pos.x][(int)mouse.pos.y] = MOUSE;
     }
@@ -112,7 +114,7 @@ int main(){
     //Game Loop
     while(num_loops > 0){
         PrintMap(gridMap, WIDTH, HEIGHT);
-        for(Mouse& e : mouses){
+        for(Mouse& e : mice){
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
             e.CheckRadar(cats, foods);
             e.move();
@@ -122,7 +124,7 @@ int main(){
         
         for(Cat& e : cats){
             gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(mouses);
+            e.CheckRadar(mice);
             e.move();
             //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
             gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
