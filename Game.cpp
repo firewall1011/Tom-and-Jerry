@@ -6,6 +6,7 @@
 #include <time.h>
 #include <math.h>
 #include <cmath>
+#include <GL/glut.h>
 
 #include "Vector2.h"
 #include "Entity.h"
@@ -13,17 +14,22 @@
 using namespace std;
 
 /*Matrix defines*/
-#define WIDTH 32
-#define HEIGHT 32
+#define WIDTH 128
+#define HEIGHT 128
 #define EMPTY_SPACE ' '
 #define CAT 'C'
 #define MOUSE 'M'
 #define FOOD 'F'
 
 /*Genetic Algorithm defines*/
-#define INITIAL_MOUSE_POPULATION 3
-#define INITIAL_CAT_POPULATION 2
-#define MAX_FOOD 2
+#define INITIAL_MOUSE_POPULATION 15
+#define INITIAL_CAT_POPULATION 4
+#define MAX_FOOD 40
+
+// variables of entities
+vector<Cat> cats;
+vector<Mouse> mice;
+vector<Food> foods;
 
 void Entity::move(){
     Vector2 v;
@@ -39,7 +45,7 @@ void Entity::move(){
         //Call runningFrom technique
         v = (tracked_pos - pos).normal();
     }
-    if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < (WIDTH - 1) && v.y + pos.y < (HEIGHT - 1)){
+    if( v.x + pos.x > 0 && v.y + pos.y > 0 && v.x + pos.x < (WIDTH - 1) && v.y + pos.y < (HEIGHT - 1)){
         v += pos;
     }
     else{
@@ -59,29 +65,47 @@ void PrintMap(char** grid, int w, int h){
         }
         printf("\n");
     }
+    getchar();
 }
 
-int main(){
-    char** gridMap = (char**)malloc(WIDTH * sizeof(char*));
-    for(int i = 0; i < WIDTH; i++) gridMap[i] = (char*)malloc(HEIGHT * sizeof(char));
+void drawEntities(void) {
+    glClearColor(0.5f, 0.8f, 0.5f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-    for(int i = 0; i < WIDTH; i++)
-        for(int j = 0; j < HEIGHT; j++)
-            gridMap[i][j] = EMPTY_SPACE;
+    glPointSize(5.0f);
 
-    srand(time(NULL));
+    glBegin(GL_POINTS);
+        
+        for (Food f : foods) {
+            glColor3f(1.0f, 222.0f/255, 4.0f/255);
+            glVertex2f(((((float) f.pos.x) / WIDTH) * 2) - 1.0f, 
+                        ((((float) f.pos.y) / HEIGHT) * 2) - 1.0f);
+        }
 
-    vector<Cat> cats;
-    vector<Mouse> mice;
-    vector<Entity> entities;
+        for (Cat c : cats) {
+            glColor3f(0.4f, 0.4f, 0.4f);
+            glVertex2f(((((float) c.pos.x) / WIDTH) * 2) - 1.0f, 
+                        ((((float) c.pos.y) / HEIGHT) * 2) - 1.0f);
+        }
 
+        for (Mouse m : mice) {
+            glColor3f(90.0f/255, 50.0f/255, 26.0f/255);
+            glVertex2f(((((float) m.pos.x) / WIDTH) * 2) - 1.0f, 
+                        ((((float) m.pos.y) / HEIGHT) * 2) - 1.0f);
+        }
+
+    glEnd();
+
+    glutSwapBuffers();
+}
+
+void init_pop() {
     for(int i = 0; i < INITIAL_CAT_POPULATION; i++){
         Cat cat = Cat();
-        cat.pos.x = WIDTH-1;
-        cat.pos.y = HEIGHT-1;
+        cat.pos.x = WIDTH-2;
+        cat.pos.y = HEIGHT-2;
         cats.push_back(cat);
-        entities.push_back(cat);
-        gridMap[(int)cat.pos.x][(int)cat.pos.y] = CAT;
+        // gridMap[(int)cat.pos.x][(int)cat.pos.y] = CAT;
     }
 
     for(int i = 0; i < INITIAL_MOUSE_POPULATION; i++){
@@ -89,45 +113,63 @@ int main(){
         mouse.pos.x = (int)(WIDTH/2);
         mouse.pos.y = (int)(HEIGHT/2);
         mice.push_back(mouse);
-        entities.push_back(mouse);
-        gridMap[(int)mouse.pos.x][(int)mouse.pos.y] = MOUSE;
+        // gridMap[(int)mouse.pos.x][(int)mouse.pos.y] = MOUSE;
     }
 
-
-    vector<Food> foods;
     for(int i = 0; i < MAX_FOOD; i++){
         Food f = Food();
         f.pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
         foods.push_back(f);
-        entities.push_back(f);
-        gridMap[(int)f.pos.x][(int)f.pos.y] = FOOD;
+        // gridMap[(int)f.pos.x][(int)f.pos.y] = FOOD;
     }
-
-    int num_loops = 1000;
-    //Game Loop
-    while(num_loops > 0){
-        PrintMap(gridMap, WIDTH, HEIGHT);
-        
-        for(Mouse& e : mice){
-            gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(cats, foods);
-            e.move();
-            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
-        }
-        
-        for(Cat& e : cats){
-            gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(mice);
-            e.move();
-            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
-        }
-
-        for(Food f : foods){
-            gridMap[(int)f.pos.x][(int)f.pos.y] = f.getRepresentation();
-        }
-        
-        num_loops--;
-    }
-    PrintMap(gridMap, WIDTH, HEIGHT);
-
 }
+
+void loop(int) {
+    for(Mouse& m : mice){
+        m.CheckRadar(cats, foods);
+        m.move();
+    }
+    
+    for(Cat& c : cats){
+        c.CheckRadar(mice);
+        c.move();
+    }
+
+    glutPostRedisplay();
+
+    glutTimerFunc(1000/60, loop, 0);
+}
+
+int main(int argc, char* argv[]){
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+
+    glutInitWindowSize(640, 640);
+    glutCreateWindow("Tom&Jerry");
+
+    // char** gridMap = (char**)malloc(WIDTH * sizeof(char*));
+    // for(int i = 0; i < WIDTH; i++) gridMap[i] = (char*)malloc(HEIGHT * sizeof(char));
+
+    // for(int i = 0; i < WIDTH; i++)
+    //     for(int j = 0; j < HEIGHT; j++)
+    //         gridMap[i][j] = EMPTY_SPACE;
+
+    srand(time(NULL));
+    
+    init_pop();
+
+    // int num_loops = 1000;
+    // //Game Loop
+    // while(num_loops > 0){
+    //     PrintMap(gridMap, WIDTH, HEIGHT);
+
+    glutDisplayFunc(drawEntities);
+    glutPostRedisplay();
+    glutTimerFunc(0, loop, 0);
+
+    glutMainLoop();
+    // }
+    // PrintMap(gridMap, WIDTH, HEIGHT);
+    
+}  

@@ -3,7 +3,8 @@
 
 #define DEBUG 0
 #include "Vector2.h"
-#include <bits/stdc++.h>
+#include <vector>
+#include <iostream>
 
 enum state{
     Wandering, RunningFrom, RunningTo, Dead
@@ -68,11 +69,15 @@ public:
 };
 
 class Food : public Entity{
+public:
+    Food(){
+        setRepresentation('F');
+    }
 };
 
 void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
     // if isnt wandering, check if has eaten food
-    if (current_state == RunningTo && pos == tracked_pos) {
+    if (current_state == RunningTo && pos.distance(tracked_pos) < 1) {
         if (food.size() > tracked_id && food[tracked_id].pos == tracked_pos)
             food.erase(food.begin() + tracked_id);
         tracked_id = -1;
@@ -128,7 +133,7 @@ void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
 
 void Cat::CheckRadar(std::vector<Mouse>& mice){
     // if isnt wandering, check if has eaten mouse
-    if (current_state == RunningTo && pos == tracked_pos) {
+    if (current_state == RunningTo && pos.distance(tracked_pos) < 1) {
         if (mice.size() > tracked_id && mice[tracked_id].pos == tracked_pos)
             mice.erase(mice.begin() + tracked_id);
         tracked_id = -1;
