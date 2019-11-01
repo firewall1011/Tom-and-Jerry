@@ -28,7 +28,7 @@ public:
     int tracked_id;
     Vector2 tracked_pos;
 private:
-    char representation;
+    float *representation;
 //Constructor
 public:
     Entity(){ 
@@ -41,21 +41,52 @@ public:
         pos = Vector2();
         tracked_id = -1;
         tracked_pos = Vector2();
-        representation = ' ';
+        representation = new (float [3]) {0.0, 0.0, 0.0};
     }
      friend bool operator==(const Entity& vA, const Entity& vB){std::cout << vA.pos << vB.pos << std::endl; return vA.pos == vB.pos;}
 //Getters and Setters
-    char getRepresentation() { return this->representation; }
-    void setRepresentation(char r) {this->representation = r;}
+    float* getRepresentation() { return this->representation; }
+    void setRepresentation(float* r) {this->representation = r;}
 //Methods
-    void move();
+    void move(int w, int h);
+    void draw(int w, int h);
     virtual void CheckRadar(){}
 };
+
+void Entity::move(int w, int h){
+    Vector2 v;
+    if(current_state == Wandering){
+        //Call wandering technique
+        v = Vector2((rand()%3 - 1), (rand()%3 - 1)) * speed;
+    }
+    else if(current_state == RunningFrom){
+        //Call runningFrom technique
+        v = (pos - tracked_pos).normal();
+    }
+    else if(current_state == RunningTo){
+        //Call runningFrom technique
+        v = (tracked_pos - pos).normal();
+    }
+    if( v.x + pos.x > 0 && v.y + pos.y > 0 && v.x + pos.x < (w - 1) && v.y + pos.y < (h - 1)){
+        v += pos;
+    }
+    else{
+        v -= pos;
+    }
+    if(v.x >= 0 && v.y >= 0 && v.x < w && v.y < h) pos = v;
+    pos.x = round(pos.x); pos.y = round(pos.y);
+}
+
+void Entity::draw(int w, int h) {
+    glColor3fv(getRepresentation());
+    glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
+                ((((float) pos.y) / h) * 2) - 1.0f);
+}
 
 class Mouse : public Entity{
 public:
     Mouse(){
-        setRepresentation('M');
+        setRepresentation(new (float [3]) {90.0f/255, 50.0f/255, 26.0f/255});
     }
     void CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food);
 };
@@ -63,7 +94,7 @@ public:
 class Cat : public Entity{
 public:
     Cat(){
-        setRepresentation('C');
+        setRepresentation(new (float [3]) {0.4f, 0.4f, 0.4f});
     }
     void CheckRadar(std::vector<Mouse>& mice);
 };
@@ -71,7 +102,7 @@ public:
 class Food : public Entity{
 public:
     Food(){
-        setRepresentation('F');
+        setRepresentation(new (float [3]) {1.0f, 222.0f/255, 4.0f/255});
     }
 };
 
