@@ -71,25 +71,7 @@ class Food : public Entity{
 };
 
 void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
-    // current_state = Wandering;
-    // double tracked_dist = smell_range;
-    // // for(Cat& e : cats){
-    // //     if(pos.distance(e.pos) <= tracked_dist){
-    // //         current_state = RunningFrom;
-    // //         tracked_dist = pos.distance(e.pos);
-    // //         tracked = &e;
-    // //         std::cout << "Cat Tracked: " << tracked->pos << tracked_dist << std::endl;
-    // //     }
-    // // }
-    // // for(Food& f : food){
-    // //     if(pos.distance(f.pos) <= tracked_dist){
-    // //         current_state = RunningTo;
-    // //         tracked_dist = pos.distance(f.pos);
-    // //         tracked = &f;
-    // //         std::cout << "Food Tracked: " << tracked->pos << tracked_dist << std::endl;
-    // //     }
-    // // }
-    // if isnt wandering, check if has eaten mouse
+    // if isnt wandering, check if has eaten food
     if (current_state == RunningTo && pos == tracked_pos) {
         if (food.size() > tracked_id && food[tracked_id].pos == tracked_pos)
             food.erase(food.begin() + tracked_id);
