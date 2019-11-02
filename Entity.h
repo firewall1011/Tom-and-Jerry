@@ -3,6 +3,7 @@
 
 #define DEBUG 0
 #include "Vector2.h"
+#include <GL/glut.h>
 #include <vector>
 #include <iostream>
 
@@ -64,17 +65,21 @@ void Entity::move(int w, int h){
         v = (pos - tracked_pos).normal();
     }
     else if(current_state == RunningTo){
-        //Call runningFrom technique
+        //Call runningTo technique
         v = (tracked_pos - pos).normal();
     }
-    if( v.x + pos.x > 0 && v.y + pos.y > 0 && v.x + pos.x < (w - 1) && v.y + pos.y < (h - 1)){
+
+    v.roundInt();
+
+    if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < w && v.y + pos.y < h){
         v += pos;
     }
     else{
+        // explain this please! this is bugging me (/alex)
         v -= pos;
     }
-    if(v.x >= 0 && v.y >= 0 && v.x < w && v.y < h) pos = v;
-    pos.x = round(pos.x); pos.y = round(pos.y);
+    if(v.x >= 0 && v.y >= 0 && v.x < w && v.y < h) 
+        pos = v;
 }
 
 void Entity::draw(int w, int h) {
@@ -165,7 +170,7 @@ void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
 void Cat::CheckRadar(std::vector<Mouse>& mice){
     // if isnt wandering, check if has eaten mouse
     if (current_state == RunningTo && pos.distance(tracked_pos) < 1) {
-        if (mice.size() > tracked_id && mice[tracked_id].pos == tracked_pos)
+        if (mice.size() > tracked_id && mice[tracked_id].pos.distance(tracked_pos) < 1)
             mice.erase(mice.begin() + tracked_id);
         tracked_id = -1;
         tracked_pos = Vector2();
@@ -192,7 +197,8 @@ void Cat::CheckRadar(std::vector<Mouse>& mice){
             tracked_id = i;
             tracked_pos = m.pos;
             if (DEBUG)
-                std::cout << "Mouse Tracked: " << mice[tracked_id].pos << tracked_dist << std::endl;
+                std::cout << "Mouse Tracked: " << mice[tracked_id].pos << tracked_dist << (tracked_pos - pos) << std::endl;
+
         }
     }
 }

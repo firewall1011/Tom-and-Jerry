@@ -25,7 +25,7 @@ using namespace std;
 #define MAX_FOOD 50
 
 /* Rendering defines */
-#define STEPS_PER_RENDER 300
+#define STEPS_PER_RENDER 1
 #define RENDERS_PER_SEC 30
 
 /* Declaration of arrays */
