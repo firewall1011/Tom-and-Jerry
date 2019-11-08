@@ -1,17 +1,14 @@
 #include <vector>
-#include <stdlib.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
 #include <cmath>
 #include <GL/glut.h>
 #include <string>
 #include <cstring>
 
-#include "Vector2.h"
-#include "Entity.h"
+#include "classes/Vector2.h"
+#include "classes/Entity.h"
+#include "classes/Mouse.h"
+#include "classes/Cat.h"
+#include "classes/Food.h"
 
 using namespace std;
 
@@ -140,10 +137,6 @@ int main(int argc, char* argv[]){
     glutCreateWindow("Tom&Jerry");
 
     initPop();
-    
-    if (DEBUG) cout << "running on " << STEPS_PER_RENDER * RENDERS_PER_SEC << " steps/sec\n"; 
-    if (DEBUG) cout << "( " << STEPS_PER_RENDER << " steps/render )\n";
-    if (DEBUG) cout << "( " << RENDERS_PER_SEC << " renders/sec )\n";  
 
     glutDisplayFunc(drawEntities);
     glutPostRedisplay();

@@ -1,8 +1,8 @@
-#ifndef _VECTOR2_
-#define _VECTOR2_
+#ifndef VECTOR2_H
+#define VECTOR2_H
 
 #include <iostream>
-#include <math.h>
+#include <cmath>
 
 class Vector2{
     public:
