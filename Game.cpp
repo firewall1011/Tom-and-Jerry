@@ -22,7 +22,7 @@ using namespace std;
 #define MAX_FOOD 50
 
 /* Rendering defines */
-#define STEPS_PER_RENDER 1
+#define STEPS_PER_RENDER 30
 #define RENDERS_PER_SEC 30
 
 /* Declaration of arrays */
@@ -139,7 +139,6 @@ int main(int argc, char* argv[]){
     initPop();
 
     glutDisplayFunc(drawEntities);
-    glutPostRedisplay();
     glutTimerFunc(0, loop, 0);
 
     glutMainLoop();

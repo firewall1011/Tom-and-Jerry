@@ -1,11 +1,9 @@
 # Tom-and-Jerry
-
 Projeto para disciplina Algoritmos Evolutivos - 2019.2
 
 ## Features
 
 ***Tom***
-
 * range de cheiro
 * hunger
 * speed
@@ -14,7 +12,6 @@ Projeto para disciplina Algoritmos Evolutivos - 2019.2
 * atractiveness
 
 ***Jerry***
-
 * range de cheiro
 * deixa rastro
 * hunger
@@ -24,7 +21,6 @@ Projeto para disciplina Algoritmos Evolutivos - 2019.2
 * atractiveness
 
 ## Produção
-
 * movimentação com feromônios
 * ~~comer~~
 * ~~interface gráfica (opengl)~~
@@ -33,8 +29,20 @@ Projeto para disciplina Algoritmos Evolutivos - 2019.2
 * definição dos parametros para evoluir com o AG
 
 ## Objetivos
-
-Chegar a um ambiente equilibrado, onde os gatos e ratos vivem em "harmonia" sem que um seja dominado por outro.
+Chegar a um ambiente equilibrado, onde os gatos e ratos vivem em "harmonia" sem que um seja dominado por outro.    
 A ideia é que de inicio um domine (por falha na inicialização dos parametros). E a partir de então, o outro evolui enquanto esse fica estagnado.
-A partir disso, a evolução vai acontecendo dessa forma, Gato vs Rato, até que essas especies atinjam um equilibrio.
-Um parametro que será definido pelo AG deve ser a geração dos queijos, já que muitos queijos farão que muitos ratos reproduzam e poucos farão que se extinguam.
+A partir disso, a evolução vai acontecendo dessa forma, Gato vs Rato, até que essas especies atinjam um equilibrio.    
+Um parametro que será definido pelo AG deve ser a geração dos queijos, já que muitos queijos farão que muitos ratos reproduzam e poucos farão que se extinguam.    
+
+## Reproduction urge 
+* energia
+* tamanho da população de sua espécie
+* desativar dependendo da energia
+
+
+## AG
+Features a serem evoluidas:
+
+* speed
+* limiar de energia (focar em só comer)
+* constantes de definição (funções de atractiveness, de energia)

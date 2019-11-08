@@ -20,4 +20,7 @@ clear:
 	$(RM) exec
 
 args = -lglut -lGLU -lGL -O2
-files = classes/Entity.cpp classes/Cat.cpp classes/Mouse.cpp
+
+files = classes/Entity.cpp  \
+		classes/Cat.cpp \
+		classes/Mouse.cpp
