@@ -110,11 +110,19 @@ void makeStep() {
     for(Mouse& m : mice){
         m.CheckRadar(cats, foods);
         m.move(WIDTH, HEIGHT);
+        if(m.energyConsume()){
+            std::remove(mice.begin(), mice.end(), m);
+            //remover do array
+        }
     }
     
     for(Cat& c : cats){
         c.CheckRadar(mice);
         c.move(WIDTH, HEIGHT);
+        if(c.energyConsume()){
+            std::remove(cats.begin(), cats.end(), c);
+            //remover do array
+        }
     }
 }
 

@@ -32,6 +32,8 @@ public:
     //Methods
     void move(int w, int h);
     void draw(int w, int h);
+    bool energyConsume();
+    bool energyRecover(float amount);
     virtual void CheckRadar(){}
 };
 

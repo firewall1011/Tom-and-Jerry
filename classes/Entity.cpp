@@ -47,6 +47,16 @@ void Entity::move(int w, int h){
         pos = v;
 }
 
+bool Entity::energyConsume(){
+    energy -= (speed*speed)/100;
+    if(energy <= 0) return true;
+        else return false;
+}
+
+void Entity::energyRecover(float amount){
+    energy = (energy+amount < 1) ? energy+amount : 1;
+}
+
 void Entity::draw(int w, int h) {
     glColor3fv(getRepresentation());
     glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
