@@ -78,6 +78,7 @@ void Entity::move(int w, int h){
         // explain this please! this is bugging me (/alex)
         v -= pos;
     }
+    
     if(v.x >= 0 && v.y >= 0 && v.x < w && v.y < h) 
         pos = v;
 }
