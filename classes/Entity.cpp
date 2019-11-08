@@ -8,7 +8,8 @@
 Entity::Entity() { 
     smell_range = 5;
     speed = 1;
-    hunger = 0.0;
+    // rand initial energy, interval = [1.0, 0.5]
+    energy = (((rand() % 100) / 100.0) + 1) / 2;
     reproduction_urge = 0.0;
     atractiveness = 0.0;
     current_state = Wandering;
@@ -48,13 +49,14 @@ void Entity::move(int w, int h){
 }
 
 bool Entity::energyConsume(){
-    energy -= (speed*speed)/100;
+    // changed from 100 to 1000, to make them last longer
+    energy -= (speed*speed) / 1000;
     if(energy <= 0) return true;
         else return false;
 }
 
 void Entity::energyRecover(float amount){
-    energy = (energy+amount < 1) ? energy+amount : 1;
+    energy = (energy + amount < 1) ? energy + amount : 1;
 }
 
 void Entity::draw(int w, int h) {

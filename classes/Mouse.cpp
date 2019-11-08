@@ -8,7 +8,7 @@ void Mouse::CheckRadar(std::vector<Cat>& cats, std::vector<Food>& food){
     if (current_state == RunningTo && pos.distance(tracked_pos) < 1) {
         if (food.size() > tracked_id && food[tracked_id].pos == tracked_pos){
             food.erase(food.begin() + tracked_id);
-            energyRecover(1);
+            energyRecover(1.0);
         }
         tracked_id = -1;
         tracked_pos = Vector2();

@@ -9,7 +9,7 @@ class Entity{
 public: 
     int smell_range;
     float speed;
-    float hunger;
+    float energy;
     float reproduction_urge;
     float atractiveness;
     state current_state;
@@ -33,7 +33,7 @@ public:
     void move(int w, int h);
     void draw(int w, int h);
     bool energyConsume();
-    bool energyRecover(float amount);
+    void energyRecover(float amount);
     virtual void CheckRadar(){}
 };
 

@@ -22,7 +22,7 @@ using namespace std;
 #define MAX_FOOD 50
 
 /* Rendering defines */
-#define STEPS_PER_RENDER 30
+#define STEPS_PER_RENDER 1
 #define RENDERS_PER_SEC 30
 
 /* Declaration of arrays */
@@ -107,21 +107,29 @@ void initPop() {
 }
 
 void makeStep() {
-    for(Mouse& m : mice){
+    for(int i = 0; i < mice.size(); i++){
+        Mouse& m = mice[i];
+
         m.CheckRadar(cats, foods);
         m.move(WIDTH, HEIGHT);
+
+        // if is dead (energy = 0), delete
         if(m.energyConsume()){
-            std::remove(mice.begin(), mice.end(), m);
-            //remover do array
+            mice.erase(mice.begin() + i);
+            i--;            
         }
     }
     
-    for(Cat& c : cats){
+    for(int i = 0; i < cats.size(); i++){
+        Cat& c = cats[i];
+
         c.CheckRadar(mice);
         c.move(WIDTH, HEIGHT);
+
+        // if is dead (energy = 0), delete
         if(c.energyConsume()){
-            std::remove(cats.begin(), cats.end(), c);
-            //remover do array
+            cats.erase(cats.begin() + i);
+            i--;
         }
     }
 }
