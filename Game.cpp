@@ -1,94 +1,95 @@
 #include <vector>
-#include <stdlib.h>
-#include <iostream>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-#include <math.h>
 #include <cmath>
+#include <GL/glut.h>
+#include <string>
+#include <cstring>
 
-#include "Vector2.h"
-#include "Entity.h"
+#include "classes/Vector2.h"
+#include "classes/Entity.h"
+#include "classes/Mouse.h"
+#include "classes/Cat.h"
+#include "classes/Food.h"
 
 using namespace std;
 
-/*Matrix defines*/
-#define WIDTH 32
-#define HEIGHT 32
-#define EMPTY_SPACE ' '
-#define CAT 'C'
-#define MOUSE 'M'
-#define FOOD 'F'
+/* Matrix defines */
+#define WIDTH 128
+#define HEIGHT 128
 
-/*Genetic Algorithm defines*/
-#define INITIAL_MOUSE_POPULATION 3
-#define INITIAL_CAT_POPULATION 2
-#define MAX_FOOD 2
+/* Genetic Algorithm defines */
+#define INITIAL_MOUSE_POPULATION 20
+#define INITIAL_CAT_POPULATION 5
+#define MAX_FOOD 50
 
-void Entity::move(){
-    Vector2 v;
-    if(current_state == Wandering){
-        //Call wandering technique
-        v = Vector2((rand()%3 - 1), (rand()%3 - 1)) * speed;
-        //cout << v << endl;
-    }
-    else if(current_state == RunningFrom){
-        // cout << tracked->pos << endl;
-        //Call runningFrom technique
-        v = (pos - tracked_pos).normal();
-        //Proprio menos alvo eh fugir
-        //std::cout << "RunningFrom Moving dir: " << v << endl;
-    }
-    else if(current_state == RunningTo){
-        //Call runningFrom technique
-        v = (tracked_pos - pos).normal();
-        //Proprio menos alvo eh fugir
-        //std::cout << "RunningTo Moving dir: " << v << endl;
-    }
-    if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < (WIDTH - 1) && v.y + pos.y < (HEIGHT - 1)){
-        v += pos;
-    }
-    else{
-        v -= pos;
-    }
-    if(v.x >= 0 && v.y >= 0 && v.x < WIDTH && v.y < HEIGHT) pos = v;
-    pos.x = round(pos.x); pos.y = round(pos.y);
+/* Rendering defines */
+#define STEPS_PER_RENDER 1
+#define RENDERS_PER_SEC 30
+
+/* Declaration of arrays */
+vector<Cat> cats;
+vector<Mouse> mice;
+vector<Food> foods;
+
+void drawFoods() {
+    for (Food f : foods)
+        f.draw(WIDTH, HEIGHT);  
 }
 
-void PrintMap(char** grid, int w, int h){
-    // sls("clear");
-    for(int i = -1; i <= w; i++){
-        for(int j = -1; j <= h; j++){
-            if(j == -1 || j == w) printf("|");
-            else if(i == -1 || i == h) printf(" =");
-            else printf(" %c", grid[i][j]);
-        }
-        printf("\n");
-    }
-    // getchar();
+void drawCats() {
+    for (Cat c : cats)
+        c.draw(WIDTH, HEIGHT);
 }
 
-int main(){
-    char** gridMap = (char**)malloc(WIDTH * sizeof(char*));
-    for(int i = 0; i < WIDTH; i++) gridMap[i] = (char*)malloc(HEIGHT * sizeof(char));
+void drawMice() {
+    for (Mouse m : mice)
+        m.draw(WIDTH, HEIGHT);
+}
 
-    for(int i = 0; i < WIDTH; i++)
-        for(int j = 0; j < HEIGHT; j++)
-            gridMap[i][j] = EMPTY_SPACE;
+void writeRates() {
+    glPushMatrix();
 
-    srand(time(NULL));
+    string ratestr = "running on ";
+    ratestr += to_string(STEPS_PER_RENDER * RENDERS_PER_SEC);
+    ratestr += " steps/sec";
 
-    vector<Cat> cats;
-    vector<Mouse> mice;
-    vector<Entity> entities;
+    unsigned char rate[ratestr.size() + 1];
+    strcpy((char*) rate, ratestr.c_str());
 
+    glColor3f(0.0, 0.0, 0.0);
+    glRasterPos2f(-0.9, 0.9);
+
+    int len = strlen((char*) rate);
+    for (int i = 0; i < len; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, rate[i]);
+    }
+
+    glPopMatrix();
+}
+
+void drawEntities(void) {
+    glClearColor(0.5f, 0.8f, 0.5f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glPointSize(5.0f);
+    
+
+    glBegin(GL_POINTS);
+        drawFoods();
+        drawCats();
+        drawMice();
+    glEnd();
+
+    writeRates();
+
+    glutSwapBuffers();
+}
+
+void initPop() {
     for(int i = 0; i < INITIAL_CAT_POPULATION; i++){
         Cat cat = Cat();
-        cat.pos.x = WIDTH-1;
-        cat.pos.y = HEIGHT-1;
+        cat.pos.x = WIDTH-2;
+        cat.pos.y = HEIGHT-2;
         cats.push_back(cat);
-        entities.push_back(cat);
-        gridMap[(int)cat.pos.x][(int)cat.pos.y] = CAT;
     }
 
     for(int i = 0; i < INITIAL_MOUSE_POPULATION; i++){
@@ -96,53 +97,65 @@ int main(){
         mouse.pos.x = (int)(WIDTH/2);
         mouse.pos.y = (int)(HEIGHT/2);
         mice.push_back(mouse);
-        entities.push_back(mouse);
-        gridMap[(int)mouse.pos.x][(int)mouse.pos.y] = MOUSE;
     }
 
-
-    vector<Food> foods;
     for(int i = 0; i < MAX_FOOD; i++){
         Food f = Food();
         f.pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
         foods.push_back(f);
-        entities.push_back(f);
-        gridMap[(int)f.pos.x][(int)f.pos.y] = FOOD;
     }
-
-    int num_loops = 1000;
-    //Game Loop
-    while(num_loops > 0){
-        PrintMap(gridMap, WIDTH, HEIGHT);
-        for(int i = 0; i < mice.size(); i++){
-            Mouse& e = mice.at(i);
-            gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(cats, foods);
-            e.move();
-            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
-            if(e.energyConsume()){
-                gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-                mice.erase(mice.begin() + i);
-                i--;
-            }
-        }
-        
-        for(int i = 0; i < cats.size(); i++){
-            Cat& e = cats.at(i);
-            gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-            e.CheckRadar(mice);
-            e.move();
-            //printf("(%lf,%lf) e %d\n", e.pos.x, e.pos.y, e.current_state);
-            gridMap[(int)e.pos.x][(int)e.pos.y] = e.getRepresentation();
-            if(e.energyConsume()){
-                gridMap[(int)e.pos.x][(int)e.pos.y] = EMPTY_SPACE;
-                cats.erase(cats.begin() + i);
-                i--;
-            }
-        }
-        getchar();
-        num_loops--;
-    }
-    PrintMap(gridMap, WIDTH, HEIGHT);
-
 }
+
+void makeStep() {
+    for(int i = 0; i < mice.size(); i++){
+        Mouse& m = mice[i];
+
+        m.CheckRadar(cats, foods);
+        m.move(WIDTH, HEIGHT);
+
+        // if is dead (energy = 0), delete
+        if(m.energyConsume()){
+            mice.erase(mice.begin() + i);
+            i--;            
+        }
+    }
+    
+    for(int i = 0; i < cats.size(); i++){
+        Cat& c = cats[i];
+
+        c.CheckRadar(mice);
+        c.move(WIDTH, HEIGHT);
+
+        // if is dead (energy = 0), delete
+        if(c.energyConsume()){
+            cats.erase(cats.begin() + i);
+            i--;
+        }
+    }
+}
+
+void loop(int) {
+    for (int i = 0; i < STEPS_PER_RENDER; i++)
+        makeStep();
+
+    glutPostRedisplay();
+
+    glutTimerFunc(1000/RENDERS_PER_SEC, loop, 0);
+}
+
+int main(int argc, char* argv[]){
+    srand(time(NULL));
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+
+    glutInitWindowSize(640, 640);
+    glutCreateWindow("Tom&Jerry");
+
+    initPop();
+
+    glutDisplayFunc(drawEntities);
+    glutTimerFunc(0, loop, 0);
+
+    glutMainLoop();
+}  
