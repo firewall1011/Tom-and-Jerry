@@ -65,7 +65,7 @@ void Entity::move(int w, int h){
                 else v.y = -1;
             }
         }
-        else if((pos.y + v.y < 0 || pos.y + v.y >= h){
+        else if(pos.y + v.y < 0 || pos.y + v.y >= h){
             v.y = 0;
             if(pos.x + v.x < 0 || pos.x + v.x >= w) v.x = -v.x;
             else if(v.x == 0){  //Da preferencia para ir pra direita
