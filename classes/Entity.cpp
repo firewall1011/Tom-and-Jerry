@@ -76,7 +76,6 @@ void Entity::move(int w, int h){
         facing_dir = v;
         pos += v;
     }
-    
 }
 
 bool Entity::energyConsume(){
