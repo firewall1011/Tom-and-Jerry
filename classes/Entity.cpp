@@ -24,7 +24,6 @@ void Entity::move(int w, int h){
     Vector2 v;
     if(current_state == Wandering){
         //Call wandering technique
-        //v = Vector2((rand()%3 - 1), (rand()%3 - 1)) * speed;
         if(facing_dir.x == 0) v = facing_dir + Vector2(rand()%3-1, 0);
         else if(facing_dir.y == 0) v = facing_dir + Vector2(0, rand()%3-1);
         else{
@@ -48,12 +47,12 @@ void Entity::move(int w, int h){
         v = (tracked_pos - pos).normal();
     }
 
-    v.roundInt();
+    //v.roundInt();
 
     if( v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < w && v.y + pos.y < h){
         //Valid position, face the new direction and move forward
         facing_dir = v;
-        pos += facing_dir;
+        pos += facing_dir*speed;
     }
     else{
         //Invalid position, turn to valid position and move forward
@@ -87,6 +86,15 @@ bool Entity::energyConsume(){
 
 void Entity::energyRecover(float amount){
     energy = (energy + amount < 1) ? energy + amount : 1;
+}
+
+/*
+E = energy constant
+N = population constant
+n = population size
+*/
+void Entity::calculateReproductionUrge(int E = 1, int N = 1, int n = 1){
+    reproduction_urge = (energy*E)/(n*N);
 }
 
 void Entity::draw(int w, int h) {
