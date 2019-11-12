@@ -34,7 +34,7 @@ public:
     void move(int w, int h);
     void draw(int w, int h);
     bool energyConsume();
-    void energyRecover(float amount);
+    void addEnergy(float amount);
     void calculateReproductionUrge(int E, int N, int n);
     virtual void CheckRadar(){}
 };

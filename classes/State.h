@@ -2,7 +2,7 @@
 #define STATE_H
 
 enum state{
-    Wandering, RunningFrom, RunningTo, Dead
+    Wandering, RunningFrom, RunningTo, Dead, RunningToPartner
 };
 
 #endif

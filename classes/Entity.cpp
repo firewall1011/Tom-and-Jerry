@@ -42,7 +42,7 @@ void Entity::move(int w, int h){
         //Call runningFrom technique
         v = (pos - tracked_pos).normal();
     }
-    else if(current_state == RunningTo){
+    else if(current_state == RunningTo || current_state == RunningToPartner){
         //Call runningTo technique
         v = (tracked_pos - pos).normal();
     }
@@ -84,8 +84,10 @@ bool Entity::energyConsume(){
         else return false;
 }
 
-void Entity::energyRecover(float amount){
-    energy = (energy + amount < 1) ? energy + amount : 1;
+void Entity::addEnergy(float amount){
+    energy = energy+amount;
+    if(energy > 1) energy = 1;
+    else if(energy < 0) energy = 0;
 }
 
 /*

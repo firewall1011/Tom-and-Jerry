@@ -110,7 +110,7 @@ void makeStep() {
     for(int i = 0; i < mice.size(); i++){
         Mouse& m = mice[i];
 
-        m.CheckRadar(cats, foods);
+        m.CheckRadar(cats, foods, mice);
         m.move(WIDTH, HEIGHT);
 
         // if is dead (energy = 0), delete
@@ -123,7 +123,7 @@ void makeStep() {
     for(int i = 0; i < cats.size(); i++){
         Cat& c = cats[i];
 
-        c.CheckRadar(mice);
+        c.CheckRadar(mice, cats);
         c.move(WIDTH, HEIGHT);
 
         // if is dead (energy = 0), delete
