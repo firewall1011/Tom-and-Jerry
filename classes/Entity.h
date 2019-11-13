@@ -25,6 +25,7 @@ public:
 
     // operators
     friend bool operator==(const Entity& vA, const Entity& vB){std::cout << vA.pos << vB.pos << std::endl; return vA.pos == vB.pos;}
+    friend bool operator!=(const Entity& vA, const Entity& vB){std::cout << vA.pos << vB.pos << std::endl; return vA.pos != vB.pos;}
 
     //Getters and Setters
     float* getRepresentation() { return this->representation; }

@@ -1,7 +1,7 @@
 #include "Entity.h"
 
 #include <vector>
-#include <GL/glut.h>
+//#include <GL/glut.h>
 
 #define DEBUG 0
 
@@ -15,7 +15,7 @@ Entity::Entity() {
     current_state = Wandering;
     tracked_id = -1;
     pos = Vector2();
-    facing_dir = Vector2();
+    facing_dir = Vector2(rand()%3-1, rand()%3-1);
     tracked_pos = Vector2();
     representation = new (float [3]) {0.0, 0.0, 0.0};
 }
@@ -99,8 +99,8 @@ void Entity::calculateReproductionUrge(int E = 1, int N = 1, int n = 1){
     reproduction_urge = (energy*E)/(n*N);
 }
 
-void Entity::draw(int w, int h) {
-    glColor3fv(getRepresentation());
-    glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
-                ((((float) pos.y) / h) * 2) - 1.0f);
-}
+// void Entity::draw(int w, int h) {
+//     glColor3fv(getRepresentation());
+//     glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
+//                 ((((float) pos.y) / h) * 2) - 1.0f);
+// }

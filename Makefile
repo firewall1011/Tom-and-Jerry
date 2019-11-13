@@ -11,11 +11,10 @@
 
 
 all: Game.cpp
-	g++ -o exec.o $(files) Game.cpp $(args)
+	g++ -o exec $(files) Game.cpp $(args)
 
 win: Game.cpp
-	#g++ -o game.o Game.cpp classes/Entity.cpp classes/Cat.cpp classes/Mouse.cpp -I"C:\MinGW\freeglut\include"
-	g++ -o test.exe exec.o -L"C:\MinGW\freeglut\lib\x64" -lopengl -lglu -Wl,--subsystem,windows 
+	g++ -o exec_nogl $(files) Game_nogl.cpp
 
 
 run: exec
@@ -28,4 +27,5 @@ args = -lglut -lGLU -lGL -O2
 
 files = classes/Entity.cpp  \
 		classes/Cat.cpp \
-		classes/Mouse.cpp
+		classes/Mouse.cpp \
+		classes/GameManager.cpp

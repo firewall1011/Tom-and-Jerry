@@ -1,6 +1,5 @@
 #include <vector>
 #include <cmath>
-#include <GL/glut.h>
 #include <string>
 #include <cstring>
 
@@ -17,72 +16,18 @@ using namespace std;
 #define HEIGHT 128
 
 /* Genetic Algorithm defines */
-#define INITIAL_MOUSE_POPULATION 20
-#define INITIAL_CAT_POPULATION 5
-#define MAX_FOOD 50
+#define INITIAL_MOUSE_POPULATION 2
+#define INITIAL_CAT_POPULATION 0
+#define MAX_FOOD 0
 
 /* Rendering defines */
-#define STEPS_PER_RENDER 1
+#define STEPS_PER_RENDER 1 //TODO: MUDAR PRA 1
 #define RENDERS_PER_SEC 30
 
 /* Declaration of arrays */
 vector<Cat> cats;
 vector<Mouse> mice;
 vector<Food> foods;
-
-void drawFoods() {
-    for (Food f : foods)
-        f.draw(WIDTH, HEIGHT);  
-}
-
-void drawCats() {
-    for (Cat c : cats)
-        c.draw(WIDTH, HEIGHT);
-}
-
-void drawMice() {
-    for (Mouse m : mice)
-        m.draw(WIDTH, HEIGHT);
-}
-
-void writeRates() {
-    glPushMatrix();
-
-    string ratestr = "running on ";
-    ratestr += to_string(STEPS_PER_RENDER * RENDERS_PER_SEC);
-    ratestr += " steps/sec";
-
-    unsigned char rate[ratestr.size() + 1];
-    strcpy((char*) rate, ratestr.c_str());
-
-    glColor3f(0.0, 0.0, 0.0);
-    glRasterPos2f(-0.9, 0.9);
-
-    int len = strlen((char*) rate);
-    for (int i = 0; i < len; i++) {
-        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, rate[i]);
-    }
-
-    glPopMatrix();
-}
-
-void drawEntities(void) {
-    glClearColor(0.5f, 0.8f, 0.5f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
-
-    glPointSize(5.0f);
-    
-
-    glBegin(GL_POINTS);
-        drawFoods();
-        drawCats();
-        drawMice();
-    glEnd();
-
-    writeRates();
-
-    glutSwapBuffers();
-}
 
 void initPop() {
     for(int i = 0; i < INITIAL_CAT_POPULATION; i++){
@@ -107,9 +52,10 @@ void initPop() {
 }
 
 void makeStep() {
-    for(int i = 0; i < mice.size(); i++){
+    for(int i = 0; i < mice.size(); i++){ // Maybe read from size to 0, or push child in front not back
         Mouse& m = mice[i];
 
+        cout<<"Mice with id" << i << "doing his thing" << endl;
         m.calculateReproductionUrge(1, 1, mice.size());
         m.CheckRadar(cats, foods, mice);
         m.move(WIDTH, HEIGHT);
@@ -118,7 +64,7 @@ void makeStep() {
         if(m.energyConsume()){
             mice.erase(mice.begin() + i);
             i--;
-            printf("Mouse died hunger\nPopulation: %lui\n", mice.size());            
+            printf("Mouse died hunger\nPopulation: %lu\n", mice.size());            
         }
     }
     
@@ -133,33 +79,19 @@ void makeStep() {
         if(c.energyConsume()){
             cats.erase(cats.begin() + i);
             i--;
-            printf("Cat died hunger\nPopulation: %lui\n", cats.size());  
+            printf("Cat died hunger\nPopulation: %lu\n", cats.size());  
         }
     }
-}
-
-void loop(int) {
-    for (int i = 0; i < STEPS_PER_RENDER; i++)
-        makeStep();
-
-    glutPostRedisplay();
-
-    glutTimerFunc(1000/RENDERS_PER_SEC, loop, 0);
 }
 
 int main(int argc, char* argv[]){
     srand(time(NULL));
 
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-
-    glutInitWindowSize(640, 640);
-    glutCreateWindow("Tom&Jerry");
-
     initPop();
-
-    glutDisplayFunc(drawEntities);
-    glutTimerFunc(0, loop, 0);
-
-    glutMainLoop();
+    char c = 'a';
+    while(c != 's'){
+        for (int i = 0; i < STEPS_PER_RENDER; i++)
+            makeStep();
+        c = getchar();
+    }
 }  
