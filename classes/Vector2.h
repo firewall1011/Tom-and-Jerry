@@ -42,8 +42,11 @@ class Vector2{
     friend std::ostream& operator<<(std::ostream& os, const Vector2& v){ os << "(" << v.x << ", "<< v.y << ")"; return os;}
 
     //Methods
-    Vector2 normal(){ return mag() == 0 ? Vector2(x, y) : Vector2(x/mag(), y/mag()); }
-    void roundInt(){ x = round(x); y = round(y); }
+    void normal(){ 
+        if (mag() == 0) return;
+        x /= mag();
+        y /= mag();
+    }
 
     double mag(){ return sqrt(x*x + y*y); }
     double distance(Vector2 v){ return (v - *this).mag(); }

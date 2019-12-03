@@ -8,14 +8,17 @@ class Entity{
 //Attributes
 public: 
     int smell_range;
+    int tracked_id;
+    int childhood;
     float speed;
     float energy;
     float reproduction_urge;
     float atractiveness;
     state current_state;
     Vector2 pos;
-    int tracked_id;
-    Vector2 tracked_pos;
+    Vector2 facing_dir;
+    // Vector2 tracked_pos;
+    Entity* tracked;
 private:
     float *representation;
 public:
@@ -23,7 +26,8 @@ public:
     Entity();
 
     // operators
-    friend bool operator==(const Entity& vA, const Entity& vB){std::cout << vA.pos << vB.pos << std::endl; return vA.pos == vB.pos;}
+    friend bool operator==(const Entity& vA, const Entity& vB){return vA.pos == vB.pos;}
+    friend bool operator!=(const Entity& vA, const Entity& vB){return vA.pos != vB.pos;}
 
     //Getters and Setters
     float* getRepresentation() { return this->representation; }
@@ -33,7 +37,8 @@ public:
     void move(int w, int h);
     void draw(int w, int h);
     bool energyConsume();
-    void energyRecover(float amount);
+    void addEnergy(float amount);
+    void calculateReproductionUrge(int E, int N, int n);
     virtual void CheckRadar(){}
 };
 

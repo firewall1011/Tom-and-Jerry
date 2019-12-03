@@ -10,8 +10,12 @@
 # then you'll have OpenGL on your OS.
 
 
-all: Game.cpp
-	g++ -o exec $(files) Game.cpp $(args)
+all: Main.cpp
+	g++ -o exec $(files) Main.cpp $(args)
+
+win:
+	g++ -o exec_nogl $(files) Game_nogl.cpp
+
 
 run: exec
 	./exec
@@ -23,4 +27,5 @@ args = -lglut -lGLU -lGL -O2
 
 files = classes/Entity.cpp  \
 		classes/Cat.cpp \
-		classes/Mouse.cpp
+		classes/Mouse.cpp \
+		classes/GameManager.cpp
