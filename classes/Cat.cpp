@@ -2,7 +2,6 @@
 #include "GameManager.h"
 #include <algorithm>
 
-#define LIMIAR 0.6
 
 void Cat::CheckRadar(std::vector<Mouse*>& mice, std::vector<Cat*>& cats){
     // if isnt wandering, check if has got to partner
@@ -10,10 +9,10 @@ void Cat::CheckRadar(std::vector<Mouse*>& mice, std::vector<Cat*>& cats){
         
         Cat* partner = dynamic_cast<Cat*>(tracked);
         
-        if (reproduction_urge > LIMIAR && partner->current_state == RunningToPartner 
-                && partner->reproduction_urge > LIMIAR && this == partner->tracked) {
+        if (reproduction_urge > reproduction_limiar && partner->current_state == RunningToPartner 
+                && partner->reproduction_urge > reproduction_limiar && this == partner->tracked) {
             cats.push_back(GameManager::reproduct(this, partner));
-            addEnergy(-LIMIAR/2);
+            addEnergy(-reproduction_limiar/2);
         }
 
         tracked = NULL;
@@ -40,13 +39,13 @@ void Cat::CheckRadar(std::vector<Mouse*>& mice, std::vector<Cat*>& cats){
     // if in need to reproduct, look for the nearest mouse to track, checking on smell_range
     // if can't track any mouse, keeps Wandering
     double tracked_dist = smell_range;
-    if(!childhood && reproduction_urge > LIMIAR){
+    if(!childhood && reproduction_urge > reproduction_limiar){
         int id = -1;
         for(int i = 0; i < cats.size(); i++){
             Cat* c = cats[i];
             if (this == c)
                 id = i;
-            else if(pos.distance(c->pos) <= tracked_dist && c->reproduction_urge > LIMIAR){
+            else if(pos.distance(c->pos) <= tracked_dist && c->reproduction_urge > reproduction_limiar){
                 current_state = RunningToPartner;
                 tracked_dist = pos.distance(c->pos);
                 tracked_id = i;

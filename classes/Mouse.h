@@ -12,7 +12,7 @@ class Food;
 
 class Mouse : public Entity{
 public:
-    Mouse(){
+    Mouse(int sr, float s, float rl) : Entity(sr, s, rl){
         setRepresentation(new (float [3]) {90.0f/255, 50.0f/255, 26.0f/255});
     }
     void CheckRadar(std::vector<Cat*>& cats, std::vector<Food*>& food, std::vector<Mouse*>& mice);

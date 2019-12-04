@@ -10,6 +10,7 @@ public:
     int smell_range;
     int tracked_id;
     int childhood;
+    float reproduction_limiar;
     float speed;
     float energy;
     float reproduction_urge;
@@ -22,7 +23,7 @@ private:
     float *representation;
 public:
     //Constructor
-    Entity();
+    Entity(int sr, float s, float rl);
 
     // operators
     friend bool operator==(const Entity& vA, const Entity& vB){return vA.pos == vB.pos;}

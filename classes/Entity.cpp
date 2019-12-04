@@ -1,13 +1,14 @@
 #include "Entity.h"
 
 #include <vector>
-#include <GL/glut.h>
+//#include <GL/glut.h>
 
 #define DEBUG 0
 
-Entity::Entity() { 
-    smell_range = 5;
-    speed = 1;
+Entity::Entity(int sr, float s, float rl) { 
+    smell_range = sr;
+    speed = s;
+    reproduction_limiar = rl;
     // rand initial energy, interval = [1.0, 0.5]
     energy = (((rand() % 100) / 100.0) + 1) / 2;
     reproduction_urge = 0.0;
@@ -104,8 +105,8 @@ void Entity::calculateReproductionUrge(int E = 1, int N = 1){
     reproduction_urge = (energy*E)/(N);
 }
 
-void Entity::draw(int w, int h) {
-    glColor3fv(getRepresentation());
-    glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
-                ((((float) pos.y) / h) * 2) - 1.0f);
-}
+// void Entity::draw(int w, int h) {
+//     glColor3fv(getRepresentation());
+//     glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
+//                 ((((float) pos.y) / h) * 2) - 1.0f);
+// }
