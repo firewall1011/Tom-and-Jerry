@@ -13,26 +13,24 @@ Entity::Entity() {
     reproduction_urge = 0.0;
     atractiveness = 0.0;
     current_state = Wandering;
-    // tracked_id = -1;
     pos = Vector2();
     facing_dir = Vector2(rand()%3-1, rand()%3-1);
-    // tracked_pos = Vector2();
     representation = new (float [3]) {0.0, 0.0, 0.0};
-    childhood = 50;
+    childhood = 100;
     tracked = NULL;
 }
 
 void Entity::move(int w, int h){
     Vector2 v;
     
-    //Children cant reproduce, but each step, childhood decrease
+    // Children cant reproduce, but each step, childhood decrease
     if (childhood) childhood -= 1;
 
     if (current_state == Wandering) {
-        //Call wandering technique
-        //Go ahead, go little up or go little down 
+        // Call wandering technique
+        // Go ahead, go little up or go little down 
         if (facing_dir.mag() == 0) {
-            // only diagonals
+            // Only diagonals
             int dir_x = rand() % 2;
             int dir_y = rand() % 2;
             if (!dir_x) dir_x--;
@@ -52,20 +50,20 @@ void Entity::move(int w, int h){
             v = facing_dir;
         }
     } else if(current_state == RunningFrom) {
-        //Call runningFrom technique
+        // Call runningFrom technique
         v = (pos - tracked->pos);
     } else if(current_state == RunningTo || current_state == RunningToPartner) {
-        //Call runningTo technique
+        // Call runningTo technique
         v = (tracked->pos - pos);
     }
 
-    v.normal();
+    v.normalize();
+    // To calculate validity, speed is important
     v *= speed;
     
     if (v.x + pos.x >= 0 && v.y + pos.y >= 0 && v.x + pos.x < w && v.y + pos.y < h) {
         //Valid position, face the new direction and move forward
-        v /= speed;
-        facing_dir = v;
+        facing_dir = v / speed;
     } else {
         //Invalid position, turn to valid position and move forward
         if (pos.x + v.x >= w || pos.x + v.x < 0) {
@@ -77,7 +75,7 @@ void Entity::move(int w, int h){
             v.x = 0; 
         }
 
-        v.normal();
+        v.normalize();
         facing_dir = v;
     }
 
@@ -86,6 +84,7 @@ void Entity::move(int w, int h){
 
 bool Entity::energyConsume(){
     // changed from 100 to 1000, to make them last longer
+    // could be K that is controlled by GA
     energy -= (speed*speed) / 1000;
     if(energy <= 0) return true;
         else return false;
@@ -100,11 +99,9 @@ void Entity::addEnergy(float amount){
 /*
 E = energy constant
 N = population constant
-n = population size
 */
-void Entity::calculateReproductionUrge(int E = 1, int N = 1, int n = 1){
-    reproduction_urge = (energy*E)/(n*N);
-    // reproduction_urge = 0;
+void Entity::calculateReproductionUrge(int E = 1, int N = 1){
+    reproduction_urge = (energy*E)/(N);
 }
 
 void Entity::draw(int w, int h) {

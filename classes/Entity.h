@@ -17,7 +17,6 @@ public:
     state current_state;
     Vector2 pos;
     Vector2 facing_dir;
-    // Vector2 tracked_pos;
     Entity* tracked;
 private:
     float *representation;
@@ -38,7 +37,7 @@ public:
     void draw(int w, int h);
     bool energyConsume();
     void addEnergy(float amount);
-    void calculateReproductionUrge(int E, int N, int n);
+    void calculateReproductionUrge(int E, int N);
     virtual void CheckRadar(){}
 };
 

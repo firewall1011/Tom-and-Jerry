@@ -12,14 +12,19 @@
 
 using namespace std;
 
+// some functions could go to GameManager ns.
+// these functions are marked right before its
+// declarations.
+
 /* Matrix defines */
 #define WIDTH 128
 #define HEIGHT 128
 
 /* Genetic Algorithm defines */
-#define INITIAL_MOUSE_POPULATION 10
-#define INITIAL_CAT_POPULATION 3
-#define MAX_FOOD 50
+#define INITIAL_MOUSE_POPULATION 1000
+#define INITIAL_CAT_POPULATION 2
+#define INITIAL_FOOD_AMOUNT 50
+#define FOOD_SPAWN_RATE 30
 
 /* Rendering defines */
 #define STEPS_PER_RENDER 1
@@ -140,7 +145,12 @@ void drawEntities(void) {
     glutSwapBuffers();
 }
 
+// could go in GameManager
 void initPop() {
+    cats.clear();
+    mice.clear();
+    foods.clear();
+
     for(int i = 0; i < INITIAL_CAT_POPULATION; i++){
         Cat* cat = new Cat();
         cat->childhood = 0;
@@ -157,20 +167,20 @@ void initPop() {
         mice.push_back(mouse);
     }
 
-    for(int i = 0; i < MAX_FOOD; i++){
+    for(int i = 0; i < INITIAL_FOOD_AMOUNT; i++){
         Food* food = new Food();
         food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
         foods.push_back(food);
     }
 }
 
-//BUG QUANDO COME
-
+// could go in GameManager
 void makeStep() {
+
     for(int i = 0; i < mice.size(); i++){
         Mouse* m = mice[i];
 
-        m->calculateReproductionUrge(1, 1, 1);
+        m->calculateReproductionUrge(1, 1);
         m->CheckRadar(cats, foods, mice);
         m->move(WIDTH, HEIGHT);
 
@@ -178,15 +188,13 @@ void makeStep() {
         if(m->energyConsume()){
             mice.erase(mice.begin() + i);
             i--;
-            // printf("Mouse died hunger\nPopulation: %lui\n", mice.size());            
         }
     }
     
     for(int i = 0; i < cats.size(); i++){
         Cat* c = cats[i];
 
-        c->calculateReproductionUrge(1, 1, 1);
-        // c.reproduction_urge = 0.0f;
+        c->calculateReproductionUrge(1, 1);
         c->CheckRadar(mice, cats);
         c->move(WIDTH, HEIGHT);
 
@@ -194,23 +202,40 @@ void makeStep() {
         if(c->energyConsume()){
             cats.erase(cats.begin() + i);
             i--;
-            // printf("Cat died hunger\nPopulation: %lui\n", cats.size());  
         }
     }
 }
 
+// could go in GameManager
+void makeNewGeneration() {
+    //TODO: make gen. alg.
+    initPop();
+}
+
+// could go in GameManager
+void genFood() {
+    if(!(rand() % FOOD_SPAWN_RATE)) {
+        Food* food = new Food();
+        food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
+        foods.push_back(food);
+    }
+}
+
 void loop(int) {
+    genFood();
+
     for (int i = 0; i < STEPS_PER_RENDER; i++)
         makeStep();
 
     glutPostRedisplay();
 
+    if (cats.size() == 0 || mice.size() == 0)
+        makeNewGeneration();
+
     glutTimerFunc(1000/RENDERS_PER_SEC, loop, 0);
 }
 
-int main(int argc, char* argv[]){
-    srand(time(NULL));
-
+void runGame(int argc, char* argv[]) {
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
 
@@ -223,4 +248,11 @@ int main(int argc, char* argv[]){
     glutTimerFunc(0, loop, 0);
 
     glutMainLoop();
+}
+
+int main(int argc, char* argv[]){
+    srand(time(NULL));
+    
+    runGame(argc, argv);
+
 }  

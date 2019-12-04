@@ -42,7 +42,7 @@ class Vector2{
     friend std::ostream& operator<<(std::ostream& os, const Vector2& v){ os << "(" << v.x << ", "<< v.y << ")"; return os;}
 
     //Methods
-    void normal(){ 
+    void normalize(){ 
         if (mag() == 0) return;
         x /= mag();
         y /= mag();
