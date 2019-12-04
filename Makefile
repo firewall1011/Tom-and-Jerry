@@ -13,6 +13,9 @@
 all: Main.cpp
 	g++ -o exec $(files) Main.cpp $(args)
 
+noGLUT: 
+	g++ -o exec $(files) Main.cpp
+	
 win:
 	g++ -o exec_nogl $(files) Game_nogl.cpp
 

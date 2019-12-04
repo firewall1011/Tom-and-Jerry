@@ -9,6 +9,7 @@ Entity::Entity(int sr, float s, float rl) {
     smell_range = sr;
     speed = s;
     reproduction_limiar = rl;
+    reproduction_amount = 0; // fitness
     // rand initial energy, interval = [1.0, 0.5]
     energy = (((rand() % 100) / 100.0) + 1) / 2;
     reproduction_urge = 0.0;

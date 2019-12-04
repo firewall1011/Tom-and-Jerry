@@ -1,5 +1,7 @@
 #include <vector>
 #include <cmath>
+#include <chrono>
+#include <ctime>
 //#include <GL/glut.h>
 #include <string>
 #include <cstring>
@@ -21,21 +23,40 @@ using namespace std;
 #define HEIGHT 128
 
 /* Rendering defines */
-#define STEPS_PER_RENDER 1
+#define STEPS_PER_RENDER 100
 #define RENDERS_PER_SEC 30
 
+
+
 /* Genetic Algorithm declarations */
-int score = 0;
+//int score = 0;
+chrono::system_clock::time_point genStart;
+int genNum = 1;
+
+// will save the best entity params
+struct best {   
+    int n_rep = -1;
+    int sml_rng;
+    float spd;
+    float rep_lim;
+} best_cat;
+
+struct best best_mouse;
+
+
+
+
 //Cats params
 int cat_population = 2;
 int cat_smell_range = 5;
-int cat_speed = 1;
+float cat_speed = 1;
 float cat_reproduction_limiar = 0.6;
+
 
 //Mice params
 int mouse_population = 1000;
 int mouse_smell_range = 5;
-int mouse_speed = 1;
+float mouse_speed = 1;
 float mouse_reproduction_limiar = 0.6;
 int food_amount = 50;
 int food_spawn_difficulty  = 30;
@@ -50,20 +71,20 @@ vector<Cat*> cats;
 vector<Mouse*> mice;
 vector<Food*> foods;
 
-void drawFoods() {
-    for (Food* f : foods)
-        f->draw(WIDTH, HEIGHT);  
-}
+// void drawFoods() {
+//     for (Food* f : foods)
+//         f->draw(WIDTH, HEIGHT);  
+// }
 
-void drawCats() {
-    for (Cat* c : cats)
-        c->draw(WIDTH, HEIGHT);
-}
+// void drawCats() {
+//     for (Cat* c : cats)
+//         c->draw(WIDTH, HEIGHT);
+// }
 
-void drawMice() {
-    for (Mouse* m : mice)
-        m->draw(WIDTH, HEIGHT);
-}
+// void drawMice() {
+//     for (Mouse* m : mice)
+//         m->draw(WIDTH, HEIGHT);
+// }
 
 // void writeRates() {
 //     glPushMatrix();
@@ -187,12 +208,15 @@ void initPop() {
         food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
         foods.push_back(food);
     }
+    genStart = chrono::system_clock::now();
+    time_t genStartTime = chrono::system_clock::to_time_t(genStart);
+    cout << "Generation " << genNum << " started at " << ctime(&genStartTime);
 }
 
 // could go in GameManager
 void makeStep() {
 
-    score += (cats.size() >= mice.size() ? 1 : -1);
+    // score += (cats.size() >= mice.size() ? 1 : -1);
 
     for(int i = 0; i < mice.size(); i++){
         Mouse* m = mice[i];
@@ -205,6 +229,14 @@ void makeStep() {
         if(m->energyConsume()){
             mice.erase(mice.begin() + i);
             i--;
+        }
+
+        // get the best mouse params
+        if(m->reproduction_amount > best_mouse.n_rep){
+            best_mouse.n_rep = m->reproduction_amount;
+            best_mouse.rep_lim = m->reproduction_limiar;
+            best_mouse.sml_rng = m->smell_range;
+            best_mouse.spd = m->speed;
         }
     }
     
@@ -220,19 +252,40 @@ void makeStep() {
             cats.erase(cats.begin() + i);
             i--;
         }
-    }
 
+        // get the best cat params
+        if(c->reproduction_amount > best_cat.n_rep){
+            best_cat.n_rep = c->reproduction_amount;
+            best_cat.rep_lim = c->reproduction_limiar;
+            best_cat.sml_rng = c->smell_range;
+            best_cat.spd = c->speed;
+        }
+    }
 
 }
 
 // could go in GameManager
-void makeNewGeneration() {
-    if(score == 0 ) ;// IDK 
-    else if(score > 0) {
-        // BUFF MICE
+void makeNewGeneration(bool catWon) {
+    auto now = chrono::system_clock::now();
+    time_t currentTime = chrono::system_clock::to_time_t(now);
+    cout << "Generation " << genNum++ << " finished at " << ctime(&currentTime);
+    chrono::duration<double> genDuration = now - genStart;
+    cout << "This generations survived for " << genDuration.count() << " seconds." << endl;
+    if(catWon) {
+        cout << "Cats Won" << endl;
+        //BUFF MICE
+        mouse_smell_range = (mouse_smell_range + best_mouse.sml_rng) / 2;
+        mouse_reproduction_limiar = (mouse_reproduction_limiar + best_mouse.rep_lim) / 2;
+        mouse_speed = (mouse_speed + best_mouse.spd) / 2;
     } else {
-        //BUFF CATS
+        cout << "Mice Won" << endl;
+        // BUFF CATS
+        cat_smell_range = (cat_smell_range + best_cat.sml_rng) / 2;
+        cat_reproduction_limiar = (cat_reproduction_limiar + best_cat.rep_lim) / 2;
+        cat_speed = (cat_speed + best_cat.spd) / 2;
     }
+    best_mouse.n_rep = best_cat.n_rep = -1;
+    cout << endl << endl;
     initPop();
 }
 
@@ -275,14 +328,19 @@ void genFood() {
 // }
 
 void runGame(int argc, char* argv[]) {
-    for(int i = 0; i < 100000; i++)  {
+    initPop();
+
+    while(genNum <= 10)  {
         genFood();
 
         for (int i = 0; i < STEPS_PER_RENDER; i++)
             makeStep();
 
-        if (cats.size() == 0 || mice.size() == 0)
-            makeNewGeneration();
+        if (!cats.size())
+            makeNewGeneration(false);
+
+        if(!mice.size())
+            makeNewGeneration(true);
 
     }
     return;

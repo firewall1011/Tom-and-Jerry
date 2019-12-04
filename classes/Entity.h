@@ -10,9 +10,10 @@ public:
     int smell_range;
     int tracked_id;
     int childhood;
-    float reproduction_limiar;
     float speed;
     float energy;
+    float reproduction_limiar;
+    int reproduction_amount;
     float reproduction_urge;
     float atractiveness;
     state current_state;
