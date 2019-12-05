@@ -1,6 +1,7 @@
 #include "Entity.h"
 
 #include <vector>
+#include <chrono>
 //#include <GL/glut.h>
 
 #define DEBUG 0
@@ -20,6 +21,7 @@ Entity::Entity(int sr, float s, float rl) {
     representation = new (float [3]) {0.0, 0.0, 0.0};
     childhood = 100;
     tracked = NULL;
+    spawnTime = std::chrono::system_clock::now();
 }
 
 void Entity::move(int w, int h){

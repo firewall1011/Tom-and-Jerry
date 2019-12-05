@@ -29,32 +29,30 @@ using namespace std;
 
 
 /* Genetic Algorithm declarations */
-//int score = 0;
+int score = 0;
 chrono::system_clock::time_point genStart;
 int genNum = 1;
 
 // will save the best entity params
 struct best {   
-    int n_rep = -1;
+    int suv_time = -1;
     int sml_rng;
     float spd;
     float rep_lim;
-} best_cat;
+};
 
+struct best best_cat;
 struct best best_mouse;
 
-
-
-
 //Cats params
-int cat_population = 2;
+int cat_population = 50;
 int cat_smell_range = 5;
 float cat_speed = 1;
 float cat_reproduction_limiar = 0.6;
 
 
 //Mice params
-int mouse_population = 1000;
+int mouse_population = 10;
 int mouse_smell_range = 5;
 float mouse_speed = 1;
 float mouse_reproduction_limiar = 0.6;
@@ -210,13 +208,13 @@ void initPop() {
     }
     genStart = chrono::system_clock::now();
     time_t genStartTime = chrono::system_clock::to_time_t(genStart);
-    cout << "Generation " << genNum << " started at " << ctime(&genStartTime);
+    cout << "Generation " << genNum << " started with " << cat_population << " cats and " << mouse_population << " mice." << endl;
 }
 
 // could go in GameManager
 void makeStep() {
 
-    // score += (cats.size() >= mice.size() ? 1 : -1);
+    score += (cats.size() >= mice.size() ? 1 : -1);
 
     for(int i = 0; i < mice.size(); i++){
         Mouse* m = mice[i];
@@ -232,8 +230,10 @@ void makeStep() {
         }
 
         // get the best mouse params
-        if(m->reproduction_amount > best_mouse.n_rep){
-            best_mouse.n_rep = m->reproduction_amount;
+        auto now = chrono::system_clock::now();
+        auto survivalTime = (now - m->spawnTime).count();
+        if(survivalTime > best_mouse.suv_time){
+            best_mouse.suv_time = survivalTime;
             best_mouse.rep_lim = m->reproduction_limiar;
             best_mouse.sml_rng = m->smell_range;
             best_mouse.spd = m->speed;
@@ -254,8 +254,10 @@ void makeStep() {
         }
 
         // get the best cat params
-        if(c->reproduction_amount > best_cat.n_rep){
-            best_cat.n_rep = c->reproduction_amount;
+        auto now = chrono::system_clock::now();
+        auto survivalTime = (now - c->spawnTime).count();
+        if(survivalTime > best_cat.suv_time){
+            best_cat.suv_time = survivalTime;
             best_cat.rep_lim = c->reproduction_limiar;
             best_cat.sml_rng = c->smell_range;
             best_cat.spd = c->speed;
@@ -268,24 +270,40 @@ void makeStep() {
 void makeNewGeneration(bool catWon) {
     auto now = chrono::system_clock::now();
     time_t currentTime = chrono::system_clock::to_time_t(now);
-    cout << "Generation " << genNum++ << " finished at " << ctime(&currentTime);
     chrono::duration<double> genDuration = now - genStart;
-    cout << "This generations survived for " << genDuration.count() << " seconds." << endl;
+    cout << "Generation " << genNum++ << " survived for " << genDuration.count() << " seconds." << endl;
     if(catWon) {
         cout << "Cats Won" << endl;
         //BUFF MICE
         mouse_smell_range = (mouse_smell_range + best_mouse.sml_rng) / 2;
         mouse_reproduction_limiar = (mouse_reproduction_limiar + best_mouse.rep_lim) / 2;
         mouse_speed = (mouse_speed + best_mouse.spd) / 2;
+
+        //NERF CATS
+        if(rand() % 2) cat_smell_range = cat_smell_range * 0.9; /*(0.9 + ((rand() % 2) / 10)) ;*/
+        if(cat_smell_range == 0) cat_smell_range = 1;
+        if(rand() % 2) cat_reproduction_limiar = cat_reproduction_limiar * 0.9; /*(0.9 + ((rand() % 2) / 10)) ;*/
+        if(cat_reproduction_limiar == 0) cat_reproduction_limiar = 0.1;
+        if(rand() % 2) cat_speed = cat_speed * 0.9; /*(0.9 + ((rand() % 2) / 10)) ;*/
+        if(cat_speed == 0) cat_speed = 0.1;
     } else {
         cout << "Mice Won" << endl;
         // BUFF CATS
         cat_smell_range = (cat_smell_range + best_cat.sml_rng) / 2;
         cat_reproduction_limiar = (cat_reproduction_limiar + best_cat.rep_lim) / 2;
         cat_speed = (cat_speed + best_cat.spd) / 2;
+        
+        //NERF MICE
+        if(rand() % 2) mouse_smell_range = mouse_smell_range * 0.9; /*(0.9 + ((rand() % 2) / 10)) ;*/
+        if(mouse_smell_range == 0) mouse_smell_range = 1;
+        if(rand() % 2) mouse_reproduction_limiar = mouse_reproduction_limiar * 0.9; /*(0.9 + ((rand() % 2) / 10)) ;*/
+        if(mouse_reproduction_limiar == 0) mouse_reproduction_limiar = 0.1;
+        if(rand() % 2) mouse_speed = mouse_speed * 0.9; /*(0.9 + ((rand() % 2) / 10)) ;*/
+        if(mouse_speed == 0) mouse_speed = 0.1;
     }
-    best_mouse.n_rep = best_cat.n_rep = -1;
+    best_mouse.suv_time = best_cat.suv_time = -1;
     cout << endl << endl;
+    score = 0;
     initPop();
 }
 
@@ -330,7 +348,7 @@ void genFood() {
 void runGame(int argc, char* argv[]) {
     initPop();
 
-    while(genNum <= 10)  {
+    while(genNum <= 1000)  {
         genFood();
 
         for (int i = 0; i < STEPS_PER_RENDER; i++)

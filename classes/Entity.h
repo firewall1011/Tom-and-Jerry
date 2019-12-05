@@ -4,6 +4,8 @@
 #include "Vector2.h"
 #include "State.h"
 
+#include <chrono>
+
 class Entity{
 //Attributes
 public: 
@@ -16,6 +18,7 @@ public:
     int reproduction_amount;
     float reproduction_urge;
     float atractiveness;
+    std::chrono::system_clock::time_point spawnTime;
     state current_state;
     Vector2 pos;
     Vector2 facing_dir;
