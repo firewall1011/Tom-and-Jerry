@@ -9,6 +9,7 @@
 
 namespace GameManager{
     extern int mutation_rate;
+    extern long long iter;
     extern float speed_mutation;
     extern float smell_range_mutation;
     //extern vector<Cat*> cats;

@@ -5,6 +5,7 @@
 
 namespace GameManager {
     int mutation_rate = 10;
+    long long iter = 0;
     float speed_mutation = 1.0f;
     float smell_range_mutation = 0.5f;
     
@@ -17,6 +18,7 @@ namespace GameManager {
         child->speed = (c1->speed + c2->speed)/2;
         //child->reproduction_limiar = (c1->reproduction_limiar + c2->reproduction_limiar)/2; // keeping the same limiar to every cat
         child->pos = c1->pos;
+        child->spawnIter = iter;
 
         mutate(child);
 
@@ -32,6 +34,7 @@ namespace GameManager {
         child->speed = (m1->speed + m2->speed)/2;
         //child->reproduction_limiar = (m1->reproduction_limiar + m2->reproduction_limiar)/2; // keeping the same limiar to every mouse
         child->pos = m1->pos;
+        child->spawnIter = iter;
 
         mutate(child);
 

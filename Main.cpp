@@ -11,6 +11,7 @@
 #include "classes/Mouse.h"
 #include "classes/Cat.h"
 #include "classes/Food.h"
+#include "classes/GameManager.h"
 
 using namespace std;
 
@@ -31,11 +32,12 @@ using namespace std;
 /* Genetic Algorithm declarations */
 int score = 0;
 chrono::system_clock::time_point genStart;
+long long curIter = 0;
 int genNum = 1;
 
 // will save the best entity params
 struct best {   
-    int suv_time = -1;
+    long long suv_time = -1;
     int sml_rng;
     float spd;
     float rep_lim;
@@ -230,8 +232,9 @@ void makeStep() {
         }
 
         // get the best mouse params
-        auto now = chrono::system_clock::now();
-        auto survivalTime = (now - m->spawnTime).count();
+        // auto now = chrono::system_clock::now();
+        // auto survivalTime = (now - m->spawnTime).count();
+        long long survivalTime = GameManager::iter - m->spawnIter;
         if(survivalTime > best_mouse.suv_time){
             best_mouse.suv_time = survivalTime;
             best_mouse.rep_lim = m->reproduction_limiar;
@@ -254,8 +257,9 @@ void makeStep() {
         }
 
         // get the best cat params
-        auto now = chrono::system_clock::now();
-        auto survivalTime = (now - c->spawnTime).count();
+        // auto now = chrono::system_clock::now();
+        // auto survivalTime = (now - c->spawnTime).count();
+        long long survivalTime = GameManager::iter - c->spawnIter;
         if(survivalTime > best_cat.suv_time){
             best_cat.suv_time = survivalTime;
             best_cat.rep_lim = c->reproduction_limiar;
@@ -263,6 +267,8 @@ void makeStep() {
             best_cat.spd = c->speed;
         }
     }
+
+    GameManager::iter++;
 
 }
 
@@ -304,6 +310,7 @@ void makeNewGeneration(bool catWon) {
     best_mouse.suv_time = best_cat.suv_time = -1;
     cout << endl << endl;
     score = 0;
+    GameManager::iter = 0;
     initPop();
 }
 

@@ -22,6 +22,7 @@ Entity::Entity(int sr, float s, float rl) {
     childhood = 100;
     tracked = NULL;
     spawnTime = std::chrono::system_clock::now();
+    spawnIter = 0;
 }
 
 void Entity::move(int w, int h){

@@ -19,6 +19,7 @@ public:
     float reproduction_urge;
     float atractiveness;
     std::chrono::system_clock::time_point spawnTime;
+    int spawnIter;
     state current_state;
     Vector2 pos;
     Vector2 facing_dir;
