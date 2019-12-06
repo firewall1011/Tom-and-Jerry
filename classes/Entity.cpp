@@ -86,7 +86,7 @@ void Entity::move(int w, int h){
 bool Entity::energyConsume(){
     // changed from 100 to 1000, to make them last longer
     // could be K that is controlled by GA
-    energy -= ((speed*speed) - 2*speed + 1) / 1000 + 0.001;
+    energy -= ((speed*speed) - 2*speed + 1) / 100;
     if(energy <= 0) return true;
     else return false;
 }

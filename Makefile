@@ -10,7 +10,7 @@
 # then you'll have OpenGL on your OS.
 
 
-all: Main.cpp
+all:
 	g++ -o exec $(files) $(filesGL) MainGL.cpp $(args)
 
 noGL: 

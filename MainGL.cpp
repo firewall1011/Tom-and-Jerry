@@ -130,11 +130,7 @@ void loop(int) {
 
     glutPostRedisplay();
 
-    if (!cats.size())
-        makeNewGeneration(false);
-
-    if(!mice.size())
-        makeNewGeneration(true);
+    if(genEnded()) makeNewGen();
 
     glutTimerFunc(1000/RENDERS_PER_SEC, loop, 0);
 }

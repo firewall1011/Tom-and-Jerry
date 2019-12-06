@@ -4,25 +4,41 @@
 #include "GameManager.h"
 
 namespace GameManager {
+    //Entity params
     int mutation_rate = 10;
     long long iter = 0;
     float speed_mutation = 1.0f;
     float smell_range_mutation = 0.5f;
+    float min_speed = 1.0f;
+    float min_smell_range = 2.0f;
 
-    chrono::system_clock::time_point genStart;
+    // GA params
     int genNum = 1;
-    struct best best_params;
+    struct best {
+        long long surv_time;
+        int sml_rng[2];
+        float spd[2];
+        float rep_lim[2];
+    } best_params;
     int no_improvement = 0;
+
+    // Cat init params
     int cat_population = 10;
     float cat_smell_range = 5;
     float cat_speed = 1;
     float cat_reproduction_limiar = 0.6;
+
+    // Mouse init params
     int mouse_population = 50;
     float mouse_smell_range = 5;
     float mouse_speed = 1;
     float mouse_reproduction_limiar = 0.6;
+
+    // Food init params
     int food_amount = 150;
     int food_spawn_difficulty = 15;
+
+    // Entities
     vector<Cat*> cats;
     vector<Mouse*> mice;
     vector<Food*> foods;
@@ -105,17 +121,8 @@ namespace GameManager {
             food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
             foods.push_back(food);
         }
-        genStart = chrono::system_clock::now();
-        time_t genStartTime = chrono::system_clock::to_time_t(genStart);
+        
         cout << "Generation " << genNum << " started with " << cat_population << " cats and " << mouse_population << " mice." << endl;
-        cout << "Cat stats: " << endl;
-        cout << "\tsmrange: " << cat_smell_range << endl;
-        cout << "\tspeed:   " << cat_speed << endl;
-        cout << "\treprlim: " << cat_reproduction_limiar << endl;
-        cout << "Mouse stats: " << endl;
-        cout << "\tsmrange: " << mouse_smell_range << endl;
-        cout << "\tspeed:   " << mouse_speed << endl;
-        cout << "\treprlim: " << mouse_reproduction_limiar << endl;
     }
 
     void makeStep() {
@@ -148,36 +155,43 @@ namespace GameManager {
             }
         }
 
-        GameManager::iter++;
+        iter++;
 
     }
 
-    float calculateRate() {
-        return exp(no_improvement / 100);
+    float calculateWeight() {
+        return log(no_improvement + 1);
     }
 
     void mutate() {
-        float rate = calculateRate();
-        if(rand() % 2) cat_reproduction_limiar += rand() % 2 && cat_reproduction_limiar > 0.01 * rate ? -0.01 * rate : 0.01 * rate;
-        if(rand() % 2) cat_speed += rand() % 2 && cat_speed > rate ? -0.1 * rate : 0.1 * rate;
-        if(rand() % 2) cat_smell_range += rand() % 2 && cat_smell_range > 0.25 * rate ? -0.25 * rate : 0.25 * rate;
-        if(rand() % 2) mouse_reproduction_limiar += rand() % 2 && mouse_reproduction_limiar > 0.01 * rate ? -0.01 * rate : 0.01 * rate;
-        if(rand() % 2) mouse_speed += rand() % 2 && mouse_speed > rate ? -0.1 * rate : 0.1 * rate;
-        if(rand() % 2) mouse_smell_range += rand() % 2 && mouse_smell_range > 0.25 * rate ? -0.25 * rate : 0.25 * rate;
+        float weight = calculateWeight();
+        // cout << "c_spd bef mut: " << cat_speed << endl;
+        // cout << "m_spd bef mut: " << mouse_speed << endl;
+        cat_reproduction_limiar += rand() % 2 && cat_reproduction_limiar > 0.01 * weight ? -0.01 * weight : 0.01 * weight;
+        cat_speed += rand() % 2 && cat_speed > min_speed + 0.1 * weight ? -0.1 * weight : 0.1 * weight;
+        cat_smell_range += rand() % 2 && cat_smell_range > min_smell_range + 0.25 * weight ? -0.25 * weight : 0.25 * weight;
+        mouse_reproduction_limiar += rand() % 2 && mouse_reproduction_limiar > 0.01 * weight ? -0.01 * weight : 0.01 * weight;
+        mouse_speed += rand() % 2 && mouse_speed > min_speed + 0.1 * weight ? -0.1 * weight : 0.1 * weight;
+        mouse_smell_range += rand() % 2 && mouse_smell_range > min_smell_range + 0.25 * weight ? -0.25 * weight : 0.25 * weight;
         return;
     }
 
     void makeNewGen() {
         srand(time(NULL));
-        auto now = chrono::system_clock::now();
-        time_t currentTime = chrono::system_clock::to_time_t(now);
-        chrono::duration<double> genDuration = now - genStart;
-
-        cout << "Generation " << genNum++ << " survived for " << genDuration.count() << " seconds." << endl;
         
-        cout << GameManager::iter << " " << best_params.surv_time << endl;
-        if(GameManager::iter > best_params.surv_time){
-            best_params.surv_time = GameManager::iter;
+        cout << "Generation " << genNum++ << " survived for " << iter << " iterations. Best is " << best_params.surv_time << "." << endl;
+
+        if(iter > best_params.surv_time){
+            cout << "Params improved." << endl;
+            cout << "Cat stats: " << endl;
+            cout << "\tsmrange: " << cat_smell_range << endl;
+            cout << "\tspeed:   " << cat_speed << endl;
+            cout << "\treprlim: " << cat_reproduction_limiar << endl;
+            cout << "Mouse stats: " << endl;
+            cout << "\tsmrange: " << mouse_smell_range << endl;
+            cout << "\tspeed:   " << mouse_speed << endl;
+            cout << "\treprlim: " << mouse_reproduction_limiar << endl;
+            best_params.surv_time = iter;
             best_params.sml_rng[0] = cat_smell_range;
             best_params.sml_rng[1] = mouse_smell_range;
             best_params.spd[0] = cat_speed;
@@ -186,18 +200,22 @@ namespace GameManager {
             best_params.rep_lim[1] = mouse_reproduction_limiar;
             no_improvement = 0;
         } else {
+            cout << "No improvement." << endl;
+
             cat_smell_range = best_params.sml_rng[0];
             mouse_smell_range = best_params.sml_rng[1];
             cat_speed = best_params.spd[0];
             mouse_speed = best_params.spd[1];
             cat_reproduction_limiar = best_params.rep_lim[0];
             mouse_reproduction_limiar = best_params.rep_lim[1];
-            if (no_improvement - 200) no_improvement++;
+            no_improvement++;
         }
+        
+        cout << endl << endl;
         
         mutate();
 
-        GameManager::iter = 0;
+        iter = 0;
         srand(RAND_SEED);
         initPop();
     }
@@ -211,7 +229,7 @@ namespace GameManager {
     }
 
     bool genEnded(){
-        return !(cats.size() && mice.size());
+        return (cats.size() <= 1 || mice.size() <= 1);
     }
 
 }
