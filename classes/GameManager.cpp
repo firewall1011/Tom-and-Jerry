@@ -8,6 +8,24 @@ namespace GameManager {
     long long iter = 0;
     float speed_mutation = 1.0f;
     float smell_range_mutation = 0.5f;
+
+    chrono::system_clock::time_point genStart;
+    int genNum = 1;
+    struct best best_params;
+    int no_improvement = 0;
+    int cat_population = 10;
+    float cat_smell_range = 5;
+    float cat_speed = 1;
+    float cat_reproduction_limiar = 0.6;
+    int mouse_population = 50;
+    float mouse_smell_range = 5;
+    float mouse_speed = 1;
+    float mouse_reproduction_limiar = 0.6;
+    int food_amount = 150;
+    int food_spawn_difficulty = 15;
+    vector<Cat*> cats;
+    vector<Mouse*> mice;
+    vector<Food*> foods;
     
     Cat* reproduct(Cat* c1, Cat* c2){
         Cat* child = new Cat(0, 0, c1->reproduction_limiar);
@@ -60,4 +78,140 @@ namespace GameManager {
                                         : smell_range_mutation) 
                                     : 0;
     }
+
+    void initPop() {
+        cats.clear();
+        mice.clear();
+        foods.clear();
+
+        for(int i = 0; i < cat_population; i++){
+            Cat* cat = new Cat(cat_smell_range, cat_speed, cat_reproduction_limiar);
+            cat->childhood = 0;
+            cat->pos.x = WIDTH-2;
+            cat->pos.y = HEIGHT-2;
+            cats.push_back(cat);
+        }
+
+        for(int i = 0; i < mouse_population; i++){
+            Mouse* mouse = new Mouse(mouse_smell_range, mouse_speed, mouse_reproduction_limiar);
+            mouse->childhood = 0;
+            mouse->pos.x = (int)(WIDTH/2);
+            mouse->pos.y = (int)(HEIGHT/2);
+            mice.push_back(mouse);
+        }
+
+        for(int i = 0; i < food_amount; i++){
+            Food* food = new Food(0, 0, 0);
+            food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
+            foods.push_back(food);
+        }
+        genStart = chrono::system_clock::now();
+        time_t genStartTime = chrono::system_clock::to_time_t(genStart);
+        cout << "Generation " << genNum << " started with " << cat_population << " cats and " << mouse_population << " mice." << endl;
+        cout << "Cat stats: " << endl;
+        cout << "\tsmrange: " << cat_smell_range << endl;
+        cout << "\tspeed:   " << cat_speed << endl;
+        cout << "\treprlim: " << cat_reproduction_limiar << endl;
+        cout << "Mouse stats: " << endl;
+        cout << "\tsmrange: " << mouse_smell_range << endl;
+        cout << "\tspeed:   " << mouse_speed << endl;
+        cout << "\treprlim: " << mouse_reproduction_limiar << endl;
+    }
+
+    void makeStep() {
+
+        for(int i = 0; i < mice.size(); i++){
+            Mouse* m = mice[i];
+
+            m->calculateReproductionUrge(1, 1);
+            m->CheckRadar(cats, foods, mice);
+            m->move(WIDTH, HEIGHT);
+
+            // if is dead (energy = 0), delete
+            if(m->energyConsume()){
+                mice.erase(mice.begin() + i);
+                i--;
+            }
+        }
+        
+        for(int i = 0; i < cats.size(); i++){
+            Cat* c = cats[i];
+
+            c->calculateReproductionUrge(1, 1);
+            c->CheckRadar(mice, cats);
+            c->move(WIDTH, HEIGHT);
+
+            // if is dead (energy = 0), delete
+            if(c->energyConsume()){
+                cats.erase(cats.begin() + i);
+                i--;
+            }
+        }
+
+        GameManager::iter++;
+
+    }
+
+    float calculateRate() {
+        return exp(no_improvement / 100);
+    }
+
+    void mutate() {
+        float rate = calculateRate();
+        if(rand() % 2) cat_reproduction_limiar += rand() % 2 && cat_reproduction_limiar > 0.01 * rate ? -0.01 * rate : 0.01 * rate;
+        if(rand() % 2) cat_speed += rand() % 2 && cat_speed > rate ? -0.1 * rate : 0.1 * rate;
+        if(rand() % 2) cat_smell_range += rand() % 2 && cat_smell_range > 0.25 * rate ? -0.25 * rate : 0.25 * rate;
+        if(rand() % 2) mouse_reproduction_limiar += rand() % 2 && mouse_reproduction_limiar > 0.01 * rate ? -0.01 * rate : 0.01 * rate;
+        if(rand() % 2) mouse_speed += rand() % 2 && mouse_speed > rate ? -0.1 * rate : 0.1 * rate;
+        if(rand() % 2) mouse_smell_range += rand() % 2 && mouse_smell_range > 0.25 * rate ? -0.25 * rate : 0.25 * rate;
+        return;
+    }
+
+    void makeNewGen() {
+        srand(time(NULL));
+        auto now = chrono::system_clock::now();
+        time_t currentTime = chrono::system_clock::to_time_t(now);
+        chrono::duration<double> genDuration = now - genStart;
+
+        cout << "Generation " << genNum++ << " survived for " << genDuration.count() << " seconds." << endl;
+        
+        cout << GameManager::iter << " " << best_params.surv_time << endl;
+        if(GameManager::iter > best_params.surv_time){
+            best_params.surv_time = GameManager::iter;
+            best_params.sml_rng[0] = cat_smell_range;
+            best_params.sml_rng[1] = mouse_smell_range;
+            best_params.spd[0] = cat_speed;
+            best_params.spd[1] = mouse_speed;
+            best_params.rep_lim[0] = cat_reproduction_limiar;
+            best_params.rep_lim[1] = mouse_reproduction_limiar;
+            no_improvement = 0;
+        } else {
+            cat_smell_range = best_params.sml_rng[0];
+            mouse_smell_range = best_params.sml_rng[1];
+            cat_speed = best_params.spd[0];
+            mouse_speed = best_params.spd[1];
+            cat_reproduction_limiar = best_params.rep_lim[0];
+            mouse_reproduction_limiar = best_params.rep_lim[1];
+            if (no_improvement - 200) no_improvement++;
+        }
+        
+        mutate();
+
+        GameManager::iter = 0;
+        srand(RAND_SEED);
+        initPop();
+    }
+
+    void genFood() {
+        if(!(rand() % food_spawn_difficulty)) {
+            Food* food = new Food(0, 0, 0);
+            food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
+            foods.push_back(food);
+        }
+    }
+
+    bool genEnded(){
+        return !(cats.size() && mice.size());
+    }
+
 }

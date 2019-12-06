@@ -2,7 +2,6 @@
 
 #include <vector>
 #include <chrono>
-#include <GL/glut.h>
 
 #define DEBUG 0
 
@@ -104,10 +103,4 @@ N = population constant
 */
 void Entity::calculateReproductionUrge(int E = 1, int N = 1){
     reproduction_urge = (energy*E)/(N);
-}
-
-void Entity::draw(int w, int h) {
-    glColor3fv(getRepresentation());
-    glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
-                ((((float) pos.y) / h) * 2) - 1.0f);
 }

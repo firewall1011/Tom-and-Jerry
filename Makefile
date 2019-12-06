@@ -11,13 +11,11 @@
 
 
 all: Main.cpp
-	g++ -o exec $(files) Main.cpp $(args)
+	g++ -o exec $(files) $(filesGL) MainGL.cpp $(args)
 
-noGLUT: 
-	g++ -o exec $(files) Main.cpp
+noGL: 
+	g++ -o exec $(files) MainNoGL.cpp
 	
-win:
-	g++ -o exec_nogl $(files) Game_nogl.cpp
 
 
 run: exec
@@ -27,6 +25,8 @@ clear:
 	$(RM) exec
 
 args = -lglut -lGLU -lGL -O2
+
+filesGL = classes/EntityGL.cpp
 
 files = classes/Entity.cpp  \
 		classes/Cat.cpp \
