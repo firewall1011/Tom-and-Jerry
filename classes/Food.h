@@ -1,6 +1,8 @@
 #ifndef FOOD_H
 #define FOOD_H
 
+#include "Entity.h"
+
 class Food;
 
 class Food : public Entity{

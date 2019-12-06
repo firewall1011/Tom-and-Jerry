@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Cat.h"
 #include "Food.h"
-
 #include <vector>
 
 class Cat;

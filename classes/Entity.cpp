@@ -1,6 +1,7 @@
 #include "Entity.h"
 
 #include <vector>
+#include <chrono>
 #include <GL/glut.h>
 
 #define DEBUG 0
