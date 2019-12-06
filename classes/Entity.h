@@ -8,7 +8,7 @@
 
 class Entity{
 //Attributes
-public: 
+public:
     float smell_range;
     int tracked_id;
     int childhood;
