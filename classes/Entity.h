@@ -9,17 +9,14 @@
 class Entity{
 //Attributes
 public: 
-    int smell_range;
+    float smell_range;
     int tracked_id;
     int childhood;
     float speed;
     float energy;
     float reproduction_limiar;
-    int reproduction_amount;
     float reproduction_urge;
     float atractiveness;
-    std::chrono::system_clock::time_point spawnTime;
-    int spawnIter;
     state current_state;
     Vector2 pos;
     Vector2 facing_dir;
@@ -28,7 +25,7 @@ private:
     float *representation;
 public:
     //Constructor
-    Entity(int sr, float s, float rl);
+    Entity(float sr, float s, float rl);
 
     // operators
     friend bool operator==(const Entity& vA, const Entity& vB){return vA.pos == vB.pos;}

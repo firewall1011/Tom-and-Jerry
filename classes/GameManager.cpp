@@ -10,15 +10,12 @@ namespace GameManager {
     float smell_range_mutation = 0.5f;
     
     Cat* reproduct(Cat* c1, Cat* c2){
-        c1->reproduction_amount++;
-        c2->reproduction_amount++;
         Cat* child = new Cat(0, 0, c1->reproduction_limiar);
 
         child->smell_range = (c1->smell_range + c2->smell_range)/2;
         child->speed = (c1->speed + c2->speed)/2;
         //child->reproduction_limiar = (c1->reproduction_limiar + c2->reproduction_limiar)/2; // keeping the same limiar to every cat
         child->pos = c1->pos;
-        child->spawnIter = iter;
 
         mutate(child);
 
@@ -26,15 +23,12 @@ namespace GameManager {
     }
 
     Mouse* reproduct(Mouse* m1, Mouse* m2){
-        m1->reproduction_amount++;
-        m2->reproduction_amount++;
         Mouse* child = new Mouse(0, 0, m1->reproduction_limiar);
 
         child->smell_range = (m1->smell_range + m2->smell_range)/2;
         child->speed = (m1->speed + m2->speed)/2;
         //child->reproduction_limiar = (m1->reproduction_limiar + m2->reproduction_limiar)/2; // keeping the same limiar to every mouse
         child->pos = m1->pos;
-        child->spawnIter = iter;
 
         mutate(child);
 

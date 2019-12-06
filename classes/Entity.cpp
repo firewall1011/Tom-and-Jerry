@@ -6,11 +6,10 @@
 
 #define DEBUG 0
 
-Entity::Entity(int sr, float s, float rl) { 
+Entity::Entity(float sr, float s, float rl) { 
     smell_range = sr;
     speed = s;
     reproduction_limiar = rl;
-    reproduction_amount = 0; // fitness
     // rand initial energy, interval = [1.0, 0.5]
     energy = (((rand() % 100) / 100.0) + 1) / 2;
     reproduction_urge = 0.0;
@@ -21,8 +20,6 @@ Entity::Entity(int sr, float s, float rl) {
     representation = new (float [3]) {0.0, 0.0, 0.0};
     childhood = 100;
     tracked = NULL;
-    spawnTime = std::chrono::system_clock::now();
-    spawnIter = 0;
 }
 
 void Entity::move(int w, int h){
