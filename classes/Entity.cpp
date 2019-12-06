@@ -2,7 +2,7 @@
 
 #include <vector>
 #include <chrono>
-//#include <GL/glut.h>
+#include <GL/glut.h>
 
 #define DEBUG 0
 
@@ -87,9 +87,9 @@ void Entity::move(int w, int h){
 bool Entity::energyConsume(){
     // changed from 100 to 1000, to make them last longer
     // could be K that is controlled by GA
-    energy -= (speed*speed) / 1000;
+    energy -= ((speed*speed) - 2*speed + 1) / 1000 + 0.001;
     if(energy <= 0) return true;
-        else return false;
+    else return false;
 }
 
 void Entity::addEnergy(float amount){
@@ -106,8 +106,8 @@ void Entity::calculateReproductionUrge(int E = 1, int N = 1){
     reproduction_urge = (energy*E)/(N);
 }
 
-// void Entity::draw(int w, int h) {
-//     glColor3fv(getRepresentation());
-//     glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
-//                 ((((float) pos.y) / h) * 2) - 1.0f);
-// }
+void Entity::draw(int w, int h) {
+    glColor3fv(getRepresentation());
+    glVertex2f(((((float) pos.x) / w) * 2) - 1.0f, 
+                ((((float) pos.y) / h) * 2) - 1.0f);
+}

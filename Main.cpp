@@ -2,7 +2,7 @@
 #include <cmath>
 #include <chrono>
 #include <ctime>
-//#include <GL/glut.h>
+#include <GL/glut.h>
 #include <string>
 #include <cstring>
 
@@ -47,6 +47,8 @@ struct best {
 struct best best_params;
 
 
+int no_improvement = 0;
+
 //Cats params
 int cat_population = 10;
 float cat_smell_range = 5;
@@ -61,7 +63,7 @@ float mouse_speed = 1;
 float mouse_reproduction_limiar = 0.6;
 
 int food_amount = 50;
-int food_spawn_difficulty  = 30;
+int food_spawn_difficulty = 15;
 
 // #define INITIAL_MOUSE_POPULATION 1000
 // #define INITIAL_CAT_POPULATION 2
@@ -73,115 +75,115 @@ vector<Cat*> cats;
 vector<Mouse*> mice;
 vector<Food*> foods;
 
-// void drawFoods() {
-//     for (Food* f : foods)
-//         f->draw(WIDTH, HEIGHT);  
-// }
+void drawFoods() {
+    for (Food* f : foods)
+        f->draw(WIDTH, HEIGHT);  
+}
 
-// void drawCats() {
-//     for (Cat* c : cats)
-//         c->draw(WIDTH, HEIGHT);
-// }
+void drawCats() {
+    for (Cat* c : cats)
+        c->draw(WIDTH, HEIGHT);
+}
 
-// void drawMice() {
-//     for (Mouse* m : mice)
-//         m->draw(WIDTH, HEIGHT);
-// }
+void drawMice() {
+    for (Mouse* m : mice)
+        m->draw(WIDTH, HEIGHT);
+}
 
-// void writeRates() {
-//     glPushMatrix();
+void writeRates() {
+    glPushMatrix();
 
-//     string ratestr = "running on ";
-//     ratestr += to_string(STEPS_PER_RENDER * RENDERS_PER_SEC);
-//     ratestr += " steps/sec";
+    string ratestr = "running on ";
+    ratestr += to_string(STEPS_PER_RENDER * RENDERS_PER_SEC);
+    ratestr += " steps/sec";
 
-//     unsigned char rate[ratestr.size() + 1];
-//     strcpy((char*) rate, ratestr.c_str());
+    unsigned char rate[ratestr.size() + 1];
+    strcpy((char*) rate, ratestr.c_str());
 
-//     glColor3f(0.0, 0.0, 0.0);
-//     glRasterPos2f(-0.9, 0.9);
+    glColor3f(0.0, 0.0, 0.0);
+    glRasterPos2f(-0.9, 0.9);
 
-//     int len = strlen((char*) rate);
-//     for (int i = 0; i < len; i++) {
-//         glutBitmapCharacter(GLUT_BITMAP_8_BY_13, rate[i]);
-//     }
+    int len = strlen((char*) rate);
+    for (int i = 0; i < len; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_8_BY_13, rate[i]);
+    }
 
-//     glPopMatrix();
-// }
+    glPopMatrix();
+}
 
-// void writeStats() {
-//         glPushMatrix();
+void writeStats() {
+        glPushMatrix();
 
-//         // write mouse population
-//         string mouseStr = "mouse population: ";
-//         mouseStr += to_string(mice.size());
+        // write mouse population
+        string mouseStr = "mouse population: ";
+        mouseStr += to_string(mice.size());
         
-//         unsigned char mouseCharPointer[mouseStr.size() + 1];
-//         strcpy((char*) mouseCharPointer, mouseStr.c_str());
+        unsigned char mouseCharPointer[mouseStr.size() + 1];
+        strcpy((char*) mouseCharPointer, mouseStr.c_str());
 
-//         int len = strlen((char*) mouseCharPointer);
+        int len = strlen((char*) mouseCharPointer);
 
-//         glColor3f(0.0, 0.0, 0.0);
-//         glRasterPos2f(-0.9f, 0.79);
+        glColor3f(0.0, 0.0, 0.0);
+        glRasterPos2f(-0.9f, 0.79);
         
-//         for (int i = 0; i < len; i++) {
-//             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, mouseCharPointer[i]);
-//         }
+        for (int i = 0; i < len; i++) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, mouseCharPointer[i]);
+        }
 
-//         // write cats population
-//         string catStr = "cat population: ";
-//         catStr += to_string(cats.size());
+        // write cats population
+        string catStr = "cat population: ";
+        catStr += to_string(cats.size());
         
-//         unsigned char catCharPointer[catStr.size() + 1];
-//         strcpy((char*) catCharPointer, catStr.c_str());
+        unsigned char catCharPointer[catStr.size() + 1];
+        strcpy((char*) catCharPointer, catStr.c_str());
 
-//         len = strlen((char*) catCharPointer);
+        len = strlen((char*) catCharPointer);
 
-//         glColor3f(0.0, 0.0, 0.0);
-//         glRasterPos2f(-0.9f, 0.73f);
+        glColor3f(0.0, 0.0, 0.0);
+        glRasterPos2f(-0.9f, 0.73f);
         
-//         for (int i = 0; i < len; i++) {
-//             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, catCharPointer[i]);
-//         }
+        for (int i = 0; i < len; i++) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, catCharPointer[i]);
+        }
 
-//         // write food amount
-//         string foodStr = "food amount: ";
-//         foodStr += to_string(foods.size());
+        // write food amount
+        string foodStr = "food amount: ";
+        foodStr += to_string(foods.size());
         
-//         unsigned char foodCharPointer[foodStr.size() + 1];
-//         strcpy((char*) foodCharPointer, foodStr.c_str());
+        unsigned char foodCharPointer[foodStr.size() + 1];
+        strcpy((char*) foodCharPointer, foodStr.c_str());
 
-//         len = strlen((char*) foodCharPointer);
+        len = strlen((char*) foodCharPointer);
 
-//         glColor3f(0.0, 0.0, 0.0);
-//         glRasterPos2f(-0.9f, 0.67f);
+        glColor3f(0.0, 0.0, 0.0);
+        glRasterPos2f(-0.9f, 0.67f);
         
-//         for (int i = 0; i < len; i++) {
-//             glutBitmapCharacter(GLUT_BITMAP_8_BY_13, foodCharPointer[i]);
-//         }
+        for (int i = 0; i < len; i++) {
+            glutBitmapCharacter(GLUT_BITMAP_8_BY_13, foodCharPointer[i]);
+        }
         
-//         glPopMatrix();
+        glPopMatrix();
 
-//}
+}
 
-// void drawEntities(void) {
-//     glClearColor(0.5f, 0.8f, 0.5f, 1.0f);
-//     glClear(GL_COLOR_BUFFER_BIT);
+void drawEntities(void) {
+    glClearColor(0.5f, 0.8f, 0.5f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
 
-//     glPointSize(5.0f);
+    glPointSize(5.0f);
     
 
-//     glBegin(GL_POINTS);
-//         drawFoods();
-//         drawCats();
-//         drawMice();
-//     glEnd();
+    glBegin(GL_POINTS);
+        drawFoods();
+        drawCats();
+        drawMice();
+    glEnd();
 
-//     writeRates();
-//     writeStats();
+    writeRates();
+    writeStats();
 
-//     glutSwapBuffers();
-// }
+    glutSwapBuffers();
+}
 
 // could go in GameManager
 void initPop() {
@@ -258,23 +260,28 @@ void makeStep() {
 
 }
 
-void crossover() {
-    cat_reproduction_limiar = (cat_reproduction_limiar + best_params.rep_lim[0]) / 2.0;
-    cat_speed = (cat_speed + best_params.spd[0]) / 2.0;
-    cat_smell_range = (cat_smell_range + best_params.sml_rng[0]) / 2.0;
-    mouse_reproduction_limiar = (mouse_reproduction_limiar + best_params.rep_lim[1]) / 2.0;
-    mouse_speed = (mouse_speed + best_params.spd[1]) / 2.0;
-    mouse_smell_range = (mouse_smell_range + best_params.sml_rng[1]) / 2.0;
-    return;
+// void crossover() {
+//     cat_reproduction_limiar = (cat_reproduction_limiar + best_params.rep_lim[0]) / 2.0;
+//     cat_speed = (cat_speed + best_params.spd[0]) / 2.0;
+//     cat_smell_range = (cat_smell_range + best_params.sml_rng[0]) / 2.0;
+//     mouse_reproduction_limiar = (mouse_reproduction_limiar + best_params.rep_lim[1]) / 2.0;
+//     mouse_speed = (mouse_speed + best_params.spd[1]) / 2.0;
+//     mouse_smell_range = (mouse_smell_range + best_params.sml_rng[1]) / 2.0;
+//     return;
+// }
+
+float calculateRate() {
+    return exp(no_improvement / 100);
 }
 
 void mutate() {
-    if(rand() % 2) cat_reproduction_limiar += rand() % 2 && cat_reproduction_limiar > 0.01 ? -0.01 : 0.01;
-    if(rand() % 2) cat_speed += rand() % 2 && cat_speed > 0.1 ? -0.1 : 0.1;
-    if(rand() % 2) cat_smell_range += rand() % 2 && cat_smell_range > 0.25 ? -0.25 : 0.25;
-    if(rand() % 2) mouse_reproduction_limiar += rand() % 2 && mouse_reproduction_limiar > 0.01 ? -0.01 : 0.01;
-    if(rand() % 2) mouse_speed += rand() % 2 && mouse_speed > 0.1 ? -0.1 : 0.1;
-    if(rand() % 2) mouse_smell_range += rand() % 2 && mouse_smell_range > 0.25 ? -0.25 : 0.25;
+    float rate = calculateRate();
+    if(rand() % 2) cat_reproduction_limiar += rand() % 2 && cat_reproduction_limiar > 0.01 * rate ? -0.01 * rate : 0.01 * rate;
+    if(rand() % 2) cat_speed += rand() % 2 && cat_speed > rate ? -0.1 * rate : 0.1 * rate;
+    if(rand() % 2) cat_smell_range += rand() % 2 && cat_smell_range > 0.25 * rate ? -0.25 * rate : 0.25 * rate;
+    if(rand() % 2) mouse_reproduction_limiar += rand() % 2 && mouse_reproduction_limiar > 0.01 * rate ? -0.01 * rate : 0.01 * rate;
+    if(rand() % 2) mouse_speed += rand() % 2 && mouse_speed > rate ? -0.1 * rate : 0.1 * rate;
+    if(rand() % 2) mouse_smell_range += rand() % 2 && mouse_smell_range > 0.25 * rate ? -0.25 * rate : 0.25 * rate;
     return;
 }
 
@@ -304,9 +311,18 @@ void makeNewGeneration(bool catWon) {
         best_params.spd[1] = mouse_speed;
         best_params.rep_lim[0] = cat_reproduction_limiar;
         best_params.rep_lim[1] = mouse_reproduction_limiar;
+        no_improvement = 0;
+        // crossover();
+    } else {
+        cat_smell_range = best_params.sml_rng[0];
+        mouse_smell_range = best_params.sml_rng[1];
+        cat_speed = best_params.spd[0];
+        mouse_speed = best_params.spd[1];
+        cat_reproduction_limiar = best_params.rep_lim[0];
+        mouse_reproduction_limiar = best_params.rep_lim[1];
+        if (no_improvement - 200) no_improvement++;
     }
-
-    crossover();
+    
     mutate();
 
     //cout << endl << endl;
@@ -324,55 +340,36 @@ void genFood() {
     }
 }
 
-// void loop(int) {
-//     genFood();
+void loop(int) {
+    genFood();
 
-//     for (int i = 0; i < STEPS_PER_RENDER; i++)
-//         makeStep();
+    for (int i = 0; i < STEPS_PER_RENDER; i++)
+        makeStep();
 
-//     glutPostRedisplay();
+    glutPostRedisplay();
 
-    // if (!cats.size())
-    //     makeNewGeneration(false);
+    if (!cats.size())
+        makeNewGeneration(false);
 
-    // if(!mice.size())
-    //     makeNewGeneration(true);
+    if(!mice.size())
+        makeNewGeneration(true);
 
-//     glutTimerFunc(1000/RENDERS_PER_SEC, loop, 0);
-// }
-
-// void runGame(int argc, char* argv[]) {
-//     glutInit(&argc, argv);
-//     glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
-
-//     glutInitWindowSize(640, 640);
-//     glutCreateWindow("Tom&Jerry");
-
-//     initPop();
-
-//     glutDisplayFunc(drawEntities);
-//     glutTimerFunc(0, loop, 0);
-
-//     glutMainLoop();
-// }
+    glutTimerFunc(1000/RENDERS_PER_SEC, loop, 0);
+}
 
 void runGame(int argc, char* argv[]) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+
+    glutInitWindowSize(640, 640);
+    glutCreateWindow("Tom&Jerry");
+
     initPop();
 
-    while(genNum <= 1000)  {
-        genFood();
+    glutDisplayFunc(drawEntities);
+    glutTimerFunc(0, loop, 0);
 
-        for (int i = 0; i < STEPS_PER_RENDER; i++)
-            makeStep();
-
-        if (!cats.size())
-            makeNewGeneration(false);
-
-        if(!mice.size())
-            makeNewGeneration(true);
-
-    }
-    return;
+    glutMainLoop();
 }
 
 // void runGame(int argc, char* argv[]) {
@@ -384,11 +381,30 @@ void runGame(int argc, char* argv[]) {
 //         for (int i = 0; i < STEPS_PER_RENDER; i++)
 //             makeStep();
 
-        // if (!cats.size())
-        //     makeNewGeneration(false);
+//         if (!cats.size())
+//             makeNewGeneration(false);
 
-        // if(!mice.size())
-        //     makeNewGeneration(true);
+//         if(!mice.size())
+//             makeNewGeneration(true);
+
+//     }
+//     return;
+// }
+
+// void runGame(int argc, char* argv[]) {
+//     initPop();
+
+//     while(genNum <= 1000)  {
+//         genFood();
+
+//         for (int i = 0; i < STEPS_PER_RENDER; i++)
+//             makeStep();
+
+//         if (!cats.size())
+//             makeNewGeneration(false);
+
+//         if(!mice.size())
+//             makeNewGeneration(true);
 
 //     }
 //     return;
