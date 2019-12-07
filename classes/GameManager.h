@@ -1,12 +1,5 @@
 #ifndef GAMEMANAGER_H
 #define GAMEMANAGER_H
-// /* Genetic Algorithm defines */
-// #define INITIAL_MOUSE_POPULATION 20
-// #define INITIAL_CAT_POPULATION 5
-// #define MAX_FOOD 50
-
-// MAYBE GAME MANAGER CONTAINS INITPOP & STUFF.
-
 
 #define RAND_SEED 1337
 

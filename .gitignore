@@ -1,2 +1,5 @@
+# executável
 exec
-*.rtf
+
+# vs code
+.vscode

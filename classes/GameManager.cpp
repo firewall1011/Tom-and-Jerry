@@ -160,10 +160,10 @@ namespace GameManager {
     }
 
     float calculateWeight() {
-        return log(no_improvement + 1);
+        return log(no_improvement + 2);
     }
 
-    void mutate() {
+    void mutateGen() {
         float weight = calculateWeight();
         // cout << "c_spd bef mut: " << cat_speed << endl;
         // cout << "m_spd bef mut: " << mouse_speed << endl;
@@ -183,6 +183,7 @@ namespace GameManager {
 
         if(iter > best_params.surv_time){
             cout << "Params improved." << endl;
+
             cout << "Cat stats: " << endl;
             cout << "\tsmrange: " << cat_smell_range << endl;
             cout << "\tspeed:   " << cat_speed << endl;
@@ -191,6 +192,7 @@ namespace GameManager {
             cout << "\tsmrange: " << mouse_smell_range << endl;
             cout << "\tspeed:   " << mouse_speed << endl;
             cout << "\treprlim: " << mouse_reproduction_limiar << endl;
+            
             best_params.surv_time = iter;
             best_params.sml_rng[0] = cat_smell_range;
             best_params.sml_rng[1] = mouse_smell_range;
@@ -213,7 +215,7 @@ namespace GameManager {
         
         cout << endl << endl;
         
-        mutate();
+        mutateGen();
 
         iter = 0;
         srand(RAND_SEED);
