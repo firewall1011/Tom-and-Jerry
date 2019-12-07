@@ -10,13 +10,11 @@
 # then you'll have OpenGL on your OS.
 
 
-all: Main.cpp
+GL:
 	g++ -o exec $(files) $(filesGL) MainGL.cpp $(args)
 
 noGL: 
 	g++ -o exec $(files) MainNoGL.cpp
-	
-
 
 run: exec
 	./exec
