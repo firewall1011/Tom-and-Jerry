@@ -99,7 +99,8 @@ namespace GameManager {
         cats.clear();
         mice.clear();
         foods.clear();
-
+        
+        cats.reserve(cat_population);
         for(int i = 0; i < cat_population; i++){
             Cat* cat = new Cat(cat_smell_range, cat_speed, cat_reproduction_limiar);
             cat->childhood = 0;
@@ -108,6 +109,7 @@ namespace GameManager {
             cats.push_back(cat);
         }
 
+        mice.reserve(mouse_population);
         for(int i = 0; i < mouse_population; i++){
             Mouse* mouse = new Mouse(mouse_smell_range, mouse_speed, mouse_reproduction_limiar);
             mouse->childhood = 0;
@@ -116,6 +118,7 @@ namespace GameManager {
             mice.push_back(mouse);
         }
 
+        foods.reserve(food_amount);
         for(int i = 0; i < food_amount; i++){
             Food* food = new Food(0, 0, 0);
             food->pos = Vector2(rand()%WIDTH, rand()%HEIGHT);
